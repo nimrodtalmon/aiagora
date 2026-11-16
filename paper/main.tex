@@ -5,6 +5,7 @@
 \usepackage[hidelinks]{hyperref}
 
 \newtheorem{proposition}{Proposition}
+\newtheorem{theorem}{Theorem}
 \newtheorem{corollary}{Corollary}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
@@ -12,8 +13,10 @@
 
 \newcommand{\opt}{\mathrm{opt}}
 \newcommand{\best}{\mathrm{best}}
+\newcommand{\pop}{\mathrm{pop}}
+\newcommand{\sample}{\mathrm{sample}}
 
-\title{The Value of an Agora: A Simple Start}
+\title{The Value of an Agora: When Personal Agents Should Share}
 \author{Nimrod Talmon}
 \date{Draft, November 2026}
 
@@ -21,33 +24,39 @@
 \maketitle
 
 \begin{abstract}
-Soon, many people will have a personal AI agent. Each agent can ask its person questions, but every question costs the person attention. We ask what agents gain by working together rather than alone. We study the simplest case: a community picks one option, and each agent may ask its person only a few yes/no questions. Agents that work alone can guarantee only a fraction of the best outcome, equal to the number of questions divided by the number of options, and no more. Agents that share their answers can reach the best outcome with two questions each in the hardest case for agents working alone; sharing costs messages, few through a coordinator and many without one.
+Soon, many people will have a personal AI agent. Each agent can ask its person questions, but every question costs the person attention, and no one should be committed to anything without saying yes. We ask what agents gain by sharing what they learn rather than working alone. We study the simplest case: a community picks one option, and each agent may ask its person only a few yes/no questions. Agents that work alone can guarantee only the number of questions divided by the number of options, as a share of the best outcome. Sharing can multiply this by the number of options divided by the number of questions, which is the most it can ever gain, but only when tastes are shared: if no two people like the same option, sharing gains nothing. In large communities with a popular option, sharing gets close to the best outcome. A community without a coordinator can do the same, since one of its agents can play the coordinator.
 \end{abstract}
 
 \section{The Story}
 
 A neighborhood wants to start one activity: a community garden, a carpool, a book club, or one of several others.
 Each resident has a personal AI agent.
-To know who would join which activity, an agent must ask its resident, and residents do not want to answer many questions.
-So each agent may ask only a few.
+To know who would join which activity, an agent must ask its resident, and residents do not want to answer many questions; so each agent may ask only a few.
+And no agent signs its resident up for anything the resident did not say yes to.
 
 If each agent works alone, then it asks its resident about a few activities and reports the answers.
 Suppose that every resident would join the garden, and no one would join anything else.
 An agent working alone does not know this, so it finds the garden only if it happens to ask about it; with two questions and ten activities, about one agent in five does.
-
 If the agents share what they learn, then one agent that hears ``yes, the garden'' is enough: every other agent asks its resident about the garden, and everyone joins.
 Two questions per resident suffice: one to search together, and one to join.
 
-This note makes this story precise.
+Now suppose instead that only one resident would join anything, and only the chess club.
+Sharing does not help here: no answer of one resident says anything about another, so the chess lover is found only if their own agent asks about chess.
+Sharing is valuable exactly when tastes are shared.
+
+This paper makes this story precise.
 Agents that work alone can guarantee exactly the share of the best outcome given by the number of questions divided by the number of options (Proposition~\ref{prop:silos}).
-Agents that share their answers reach the best outcome in the example above (Proposition~\ref{prop:central}), so this is the largest gain that sharing can bring (Corollary~\ref{cor:value}).
-Sharing costs messages: few when the agents talk through a coordinator, and many when they talk to each other directly (Proposition~\ref{prop:grassroots}).
+Sharing reaches the best outcome when everyone likes the same option (Proposition~\ref{prop:central}), which is the largest gain possible (Corollary~\ref{cor:value}), and gains nothing when no two members like the same option (Proposition~\ref{prop:needle}).
+In between, when one option is popular, sharing gets close to the best outcome as the community grows (Theorem~\ref{thm:large}).
+All of this can be done without a coordinator, with more messages (Proposition~\ref{prop:grassroots} and Remark~\ref{rem:simulate}).
 
 \section{The Model}
 
+We first describe the community, then the agents and what they may do, and then how we compare ways of organizing them.
+
 \begin{definition}[Community]
 A community consists of $n$~members and $m$~options.
-Each member~$i$ approves a set of options, unknown to everyone, including the member's agent.
+Each member approves a set of options, unknown to everyone, including the member's agent.
 \end{definition}
 
 \begin{definition}[Agents and questions]
@@ -59,7 +68,7 @@ Each question costs member~$i$ one unit of attention, and each agent may ask its
 \begin{definition}[Outcome and welfare]
 An outcome is an option~$o$ together with a set of \emph{enrolled} members, each of whom answered ``yes'' to the question about~$o$.
 The \emph{welfare} of an outcome is the number of its enrolled members.
-The optimum $\opt$ is the largest number of members that approve a single option.
+The optimum $\opt$ is the largest number of members that approve a single option, and the \emph{popularity} of the community is $\pop = \opt / n$.
 \end{definition}
 
 \begin{definition}[Settings]
@@ -70,18 +79,20 @@ Agents act in synchronous rounds.
 \end{definition}
 
 \begin{definition}[Guarantees and the value of the Agora]
-A protocol \emph{guarantees} a ratio~$r$ on a class of instances if, on every instance in the class, its expected welfare is at least $r \cdot \opt$.
+A protocol \emph{guarantees} a ratio~$r$ on a class of communities if, on every community in the class, its expected welfare is at least $r \cdot \opt$.
 For a setting~$S$, $\best_S(b)$ is the largest ratio that a protocol in~$S$ with budget~$b$ guarantees.
 The \emph{value of the central Agora} is $\best_{\text{central}}(b) / \best_{\text{silos}}(b)$, and the value of the grassroots Agora is defined in the same way.
 \end{definition}
 
-\begin{definition}[Hidden favorite]
-In a \emph{hidden-favorite} instance, all members approve one option, the favorite, and no member approves any other option.
+\begin{definition}[Two extreme communities]
+In a \emph{hidden-favorite} community, all members approve one option, the favorite, and no member approves any other option.
+In a \emph{needle} community, one member approves one option, and no member approves anything else.
 \end{definition}
 
 \begin{remark}
 Enrolling only members who said ``yes'' means that an agent commits its member to nothing that the member did not confirm.
-Without this requirement, a mechanism that learned the favorite from one member could enroll everyone, and the questions would lose their meaning.
+Without this requirement, a mechanism that learned the favorite from one member could enroll everyone, and questions would lose their meaning.
+With it, attention becomes a direct limit on welfare.
 \end{remark}
 
 \begin{remark}
@@ -89,33 +100,45 @@ The two costs of a protocol are kept apart: attention, the number of questions, 
 Rounds cost nothing here.
 \end{remark}
 
-\section{Results}
+\section{Agents Alone}
+
+Without sharing, an agent can only guess where its member's approvals are, and the best guess guarantees the fraction $b/m$.
 
 \begin{proposition}[Silos]\label{prop:silos}
 Let $1 \le b \le m$.
-In silos, the protocol in which every agent asks about $b$~options chosen uniformly at random, and the mechanism picks the option with the most ``yes'' answers, guarantees the ratio~$b/m$ on all instances.
-No protocol in silos guarantees more than $b/m$, already on hidden-favorite instances.
+In silos, the protocol in which every agent asks about $b$~options chosen uniformly at random, and the mechanism picks the option with the most ``yes'' answers, guarantees the ratio~$b/m$ on all communities.
+No protocol in silos guarantees more than $b/m$, already on hidden-favorite communities.
 Hence $\best_{\text{silos}}(b) = b/m$.
 \end{proposition}
 
 \begin{proof}
-For the first part, fix an instance and an option~$o^\ast$ that $\opt$~members approve.
+For the first part, fix a community and an option~$o^\ast$ that $\opt$~members approve.
 Each of them asks about~$o^\ast$ with probability~$b/m$, so the expected number of ``yes'' answers about~$o^\ast$ is $(b/m)\cdot\opt$.
 The mechanism picks an option with at least as many ``yes'' answers as~$o^\ast$ and enrolls exactly the members who said ``yes'' to it, so its expected welfare is at least $(b/m)\cdot\opt$.
 
-For the second part, fix a protocol in silos and run it on the hidden-favorite instance with favorite~$f$.
+For the second part, fix a protocol in silos and run it on the hidden-favorite community with favorite~$f$.
 Until agent~$i$ asks about~$f$, every answer it gets is ``no'', whatever~$f$ is.
 So the options that agent~$i$ asks about before it asks about~$f$ follow one random sequence, the sequence the agent would follow if all answers were ``no'', and this sequence does not depend on~$f$.
 Agent~$i$ asks about~$f$ only if $f$~is among the first $b$~options of this sequence.
 If $f$~is chosen uniformly at random, then this happens with probability at most~$b/m$.
-Only members who said ``yes'' to the chosen option can be enrolled, and on this instance only members who were asked about~$f$ said ``yes'' to anything, so the expected welfare is at most $n \cdot b/m$ for a random favorite.
+Only members who said ``yes'' to the chosen option can be enrolled, and on this community only members who were asked about~$f$ said ``yes'' to anything, so the expected welfare is at most $n \cdot b/m$ for a random favorite.
 Hence for some favorite~$f$ the expected welfare is at most $n \cdot b/m = (b/m)\cdot\opt$.
 \end{proof}
 
-\begin{proposition}[Central Agora]\label{prop:central}
+\begin{remark}
+Agents in silos can still follow a convention agreed in advance: for example, all of them ask about the same $b$~options, chosen at random.
+This also guarantees $b/m$, but it changes how the welfare is spread: on a hidden-favorite community, either everyone joins or no one does.
+\end{remark}
+
+\section{Agents Together}
+
+Sharing helps when one member's answer says something about another's.
+We first look at the two extreme communities, and then at large communities with a popular option.
+
+\begin{proposition}[Central Agora, hidden favorite]\label{prop:central}
 Let $n \ge m$ and $2 \le b \le m$.
-In the central Agora, the following protocol enrolls all $n$~members on every hidden-favorite instance.
-\emph{Explore:} member~$i$ is asked about the $b-1$ options $i, i+1, \dots, i+b-2$, counted modulo~$m$.
+In the central Agora, the following protocol enrolls all $n$~members on every hidden-favorite community.
+\emph{Explore:} the members are put in a uniformly random order, and the member in position~$p$ (counting from~$0$) is asked about the $b-1$ options $p, p+1, \dots, p+b-2$, counted modulo~$m$.
 \emph{Commit:} the leader is the option with the largest share of ``yes'' answers among the members asked about it; every member not yet asked about the leader is asked about it; the outcome is the leader, with the members who said ``yes'' to it.
 The protocol asks at most $n \cdot b$ questions and sends two messages per question.
 \end{proposition}
@@ -129,21 +152,80 @@ All members approve~$f$, so all of them say ``yes'' and all are enrolled.
 
 \begin{corollary}\label{cor:value}
 Let $n \ge m$ and $2 \le b \le m$.
-On hidden-favorite instances, the value of the central Agora is $m/b$.
-On all instances, the value of the central Agora is at most $m/b$.
+On hidden-favorite communities, the value of the central Agora is $m/b$.
+On any class of communities, the value of the central Agora is at most $m/b$.
 \end{corollary}
 
 \begin{proof}
-On hidden-favorite instances, Proposition~\ref{prop:central} gives $\best_{\text{central}}(b) = 1$ and Proposition~\ref{prop:silos} gives $\best_{\text{silos}}(b) = b/m$.
-On all instances, $\best_{\text{central}}(b) \le 1$ and, by Proposition~\ref{prop:silos}, $\best_{\text{silos}}(b) = b/m$.
+On hidden-favorite communities, Proposition~\ref{prop:central} gives $\best_{\text{central}}(b) = 1$ and Proposition~\ref{prop:silos} gives $\best_{\text{silos}}(b) = b/m$.
+On any class, $\best_{\text{central}}(b) \le 1$ and, by Proposition~\ref{prop:silos}, $\best_{\text{silos}}(b) \ge b/m$.
 \end{proof}
+
+\begin{proposition}[No shared tastes]\label{prop:needle}
+Let $1 \le b \le m$.
+On needle communities, no protocol, in any of the three settings, guarantees more than $b/m$.
+Hence, over all communities, $\best_{\text{central}}(b) = \best_{\text{grassroots}}(b) = \best_{\text{silos}}(b) = b/m$, and the value of the Agora is~$1$.
+\end{proposition}
+
+\begin{proof}
+Fix a protocol and run it on the community in which no member approves anything.
+Let $Q$ be the random set of member--option pairs that it asks about; since each member is asked at most $b$~questions, $Q$ has at most $n \cdot b$ pairs.
+On the needle community whose needle is the pair $(i, o)$, the protocol behaves exactly as on the empty community until it asks about $(i, o)$, since all earlier answers are ``no'' in both.
+So it asks about the needle only if $(i, o) \in Q$, and if the needle is chosen uniformly among the $n \cdot m$ pairs, then this happens with probability at most $n b / (n m) = b/m$.
+Welfare is at most~$1$, and it is~$0$ unless the needle is asked about, so for some needle the expected welfare is at most $b/m = (b/m)\cdot\opt$.
+Together with Proposition~\ref{prop:silos}, and since a central or grassroots protocol can ignore all messages and act as in silos, the second sentence follows.
+\end{proof}
+
+So the worst case over all communities is the wrong lens: there, sharing gains nothing.
+The gain lives in communities whose members share tastes, and the next result shows that a popular option is enough, once the community is large.
+
+\begin{theorem}[Large communities]\label{thm:large}
+Let $n \ge m$, $2 \le b \le m$, and $\sample = (b-1)\lfloor n/m \rfloor$.
+On every community with popularity~$\pop$, the protocol of Proposition~\ref{prop:central} has expected welfare at least
+\[
+\left(1 - \frac{1}{n}\right)\left(1 - \frac{2}{\pop}\sqrt{\frac{\ln(2mn)}{2\cdot\sample}}\right)\cdot \opt .
+\]
+In particular, for fixed $m$, $b$ and $\pop$, its ratio tends to~$1$ as $n$ grows, and the value of the central Agora on communities with popularity at least~$\pop$ tends to $m/b$.
+\end{theorem}
+
+\begin{proof}
+For an option~$o$, let $p_o$ be the fraction of members who approve it, and let $\hat p_o$ be the share of ``yes'' answers among the members asked about~$o$ during exploration.
+The positions whose exploration includes~$o$ are those congruent to $o, o-1, \dots, o-b+2$ modulo~$m$, so at least $\sample$ positions; since the order of the members is uniformly random, the members asked about~$o$ form a uniformly random subset of the members, drawn without replacement.
+By Hoeffding's inequality for sampling without replacement~\cite{bardenet2015concentration}, $|\hat p_o - p_o| \ge \varepsilon$ with probability at most $2\exp(-2\cdot\sample\cdot\varepsilon^2)$, and by a union bound this fails for some option with probability at most $\delta = 2m\exp(-2\cdot\sample\cdot\varepsilon^2)$.
+
+Assume that $|\hat p_o - p_o| < \varepsilon$ for all options, let $\ell$~be the leader, and let $o^\ast$~be an option with $p_{o^\ast} = \pop$.
+Then $p_\ell > \hat p_\ell - \varepsilon \ge \hat p_{o^\ast} - \varepsilon > \pop - 2\varepsilon$.
+Every member is asked about~$\ell$: the members asked during exploration have already answered, and every other member has asked $b-1$ questions and has one left.
+So the enrolled members are exactly those who approve~$\ell$, and the welfare is $p_\ell \cdot n > (\pop - 2\varepsilon)\, n = (1 - 2\varepsilon/\pop)\cdot\opt$.
+
+Hence the expected welfare is at least $(1-\delta)(1 - 2\varepsilon/\pop)\cdot\opt$.
+Choosing $\varepsilon = \sqrt{\ln(2mn)/(2\cdot\sample)}$ gives $\delta = 1/n$, which proves the bound.
+For fixed $m$, $b$ and~$\pop$, $\sample$ grows linearly in~$n$, so the bound tends to~$1$; Proposition~\ref{prop:silos} gives the value.
+\end{proof}
+
+\begin{remark}
+With $b \ge 2$, exploring costs no welfare: every member asked during exploration still has a question left for the leader.
+The only loss is choosing the wrong leader, so the problem becomes one of identifying the most approved option from samples.
+With $b = 1$, members who explore cannot also join, and the protocol must trade exploration against enrollment, as in the classic design of trying treatments on some patients and giving the rest the best one~\cite{colton1963model}.
+\end{remark}
+
+\begin{remark}
+Correlation between members is what drives the gain.
+If members' answers were independent random variables with known distributions, then choosing questions adaptively would be a stochastic probing problem: our welfare is the maximum, over options, of the number of ``yes'' answers about that option, and the budget limits the questions asked to each member.
+For such problems, the gain from adaptivity is at most logarithmic in the number of options~\cite{gupta2016adaptivity}; since agents in silos can follow any plan fixed in advance, the gain of the order of $m/b$ that we find cannot arise without correlation.
+\end{remark}
+
+\section{Without a Coordinator}
+
+A coordinator is a third party that sees all answers.
+The protocol of Proposition~\ref{prop:central} can also run without one.
 
 \begin{proposition}[Grassroots Agora]\label{prop:grassroots}
 Under the conditions of Proposition~\ref{prop:central}, the same outcome is reached without a coordinator.
-Each agent asks the exploration questions of Proposition~\ref{prop:central}, which depend only on its own index, and sends every ``yes'' answer of its member to all other agents.
+Each agent asks the exploration questions of Proposition~\ref{prop:central} for its own index in place of its position, and sends every ``yes'' answer of its member to all other agents.
 After exploration, every agent computes the same leader from the ``yes'' answers it received, asks its member about the leader if it has not yet done so, and again sends a ``yes'' answer to all other agents.
 All agents output the leader with the members who said ``yes'' to it.
-On hidden-favorite instances, this protocol enrolls all members and sends $n(n-1)$ messages, whereas the protocol of Proposition~\ref{prop:central} sends at most $4n$ messages when $b = 2$.
+On hidden-favorite communities, this protocol enrolls all members and sends $n(n-1)$ messages, whereas the protocol of Proposition~\ref{prop:central} sends at most $4n$ messages when $b = 2$.
 \end{proposition}
 
 \begin{proof}
@@ -153,35 +235,84 @@ Each member says ``yes'' exactly once, to the favorite, and each ``yes'' is sent
 With $b = 2$, the central protocol asks at most $2n$ questions and sends two messages per question.
 \end{proof}
 
-\begin{remark}
-With a budget of one question, the central Agora can still do well, because rounds cost nothing: it asks members one at a time about distinct options until one says ``yes'', and then asks all remaining members about that option.
-On hidden-favorite instances, this enrolls at least $n-m+1$ members, whereas silos guarantee only $1/m$ of the optimum.
+\begin{remark}\label{rem:simulate}
+In the model as defined, a grassroots Agora can do whatever a central one does, with no more messages: the agents agree in advance that agent~$1$ plays the coordinator.
+So $\best_{\text{grassroots}} \ge \best_{\text{central}}$ for every budget.
+The two designs differ only in aspects that the model leaves out: whether members trust one agent to see all answers, how the load of messages is spread among agents, whether the communication graph is complete, and whether communities can form and merge independently of each other, as grassroots platforms require~\cite{shapiro2026grassroots}.
+Each of these is a natural next measure for the comparison.
 \end{remark}
 
-\section{Simulation}
+\section{Simulations}
 
-Figure~\ref{fig:sim} shows the protocols of Propositions~\ref{prop:silos}--\ref{prop:grassroots} on communities of $40$~members and $10$~options, averaged over $50$~instances per point.
-On hidden-favorite instances, silos follow the line $b/m$ and the Agora reaches the optimum from two questions on.
-On instances in which each option~$o$ is approved by each member independently with a probability drawn uniformly between $0$ and~$0.6$, silos do slightly better than $b/m$, and the Agora reaches $81\%$ of the optimum with two questions per member (silos: $26\%$) and $93\%$ with five (silos: $54\%$).
+Figure~\ref{fig:sim} shows the protocols on communities of $40$~members and $10$~options, averaged over $50$~communities per point.
+On hidden-favorite communities, silos follow the line $b/m$ and the Agora reaches the optimum from two questions on.
+On communities in which each option~$o$ is approved by each member independently with a probability drawn uniformly between $0$ and~$0.6$, silos do slightly better than $b/m$, and the Agora reaches $81\%$ of the optimum with two questions per member (silos: $26\%$) and $93\%$ with five (silos: $54\%$).
 The central and grassroots Agoras reach the same outcomes; with two questions per member, the central Agora sends $152$~messages on average and the grassroots Agora $1087$.
+
+Figure~\ref{fig:scale} follows Theorem~\ref{thm:large}: one option is approved by each member with probability $0.2$ or $0.5$, and every other option with half that probability, with $10$~options and two questions per member.
+As the community grows from $10$ to $640$~members, the Agora rises from $54\%$ to $86\%$ of the optimum when the popular option has probability~$0.2$, and from $66\%$ to $99\%$ when it has probability~$0.5$; silos fall to $b/m = 20\%$, since in a large community the best option is rarely beaten by chance.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{pick_one.pdf}
-\caption{Share of the optimum reached, by questions per member; $40$~members, $10$~options, $50$~instances per point. The dashed line is the number of questions divided by the number of options.}
+\caption{Share of the optimum, by questions per member; $40$~members, $10$~options, $50$~communities per point. The dashed line is the number of questions divided by the number of options.}
 \label{fig:sim}
 \end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{pick_one_scale.pdf}
+\caption{Share of the optimum, by community size; one popular option, $10$~options, two questions per member, $40$~communities per point. The dashed line is $b/m$.}
+\label{fig:scale}
+\end{figure}
+
+\section{Related Work}
+
+Each part of our model has precedents; we discuss them by area.
+
+\paragraph{Elicitation under query limits.}
+Halpern et al.~\cite{halpern2023representation} study approval votes in which each voter is asked about only a few candidates, and show a large gap between asking in a way fixed in advance and asking adaptively; their goal is a representative committee, evaluated on everyone's true approvals.
+Halpern, Hossain, and Tucker-Foltz~\cite{halpern2024computing} ask which voting rules can be computed when each voter is asked about fewer candidates than there are.
+Lu and Boutilier~\cite{lu2011robust} and Naamani-Dery et al.~\cite{naamani2014reaching} study a central elicitor that chooses which voter to ask about which candidate, with no limit per voter.
+Bentert and Skowron~\cite{bentert2019comparing} study voters who rank only a few, possibly random, candidates, which resembles our silos.
+Zimet, Alouf-Heffetz, and Talmon~\cite{zimet2026query} model the cognitive cost of richer queries under a global budget.
+In all of these, the chosen outcome is evaluated on members' true preferences, whoever was asked; in our model, only members who said ``yes'' count.
+
+\paragraph{Communication and welfare.}
+Mandal et al.~\cite{mandal2019thrifty,mandal2020optimal} and Kempe~\cite{kempe2019communication} bound how much welfare is lost when each voter sends only a few bits; the loss grows with the number of options divided by the bits, the same shape as our bound for silos, but elicitation there is one-shot and not adaptive.
+Filtser and Talmon~\cite{filtser2019distributed} count messages between a center and sites that know their voters' preferences.
+
+\paragraph{Bandits and adaptivity.}
+Options resemble arms and questions resemble pulls, but each member--option pair can be asked only once, each member only $b$~times, and the reward is the number of ``yes'' answers about the chosen option.
+Explore-then-commit~\cite{garivier2016etc} and fixed-budget identification of the best arm~\cite{karnin2013almost} are templates for improving our protocol; collaborative and federated bandits~\cite{hillel2013distributed,tao2019collaborative,shi2021federated} study agents that share samples, and count rounds of communication rather than people's attention.
+Stochastic probing~\cite{gupta2016adaptivity} explains why correlated tastes are needed for a large gain.
+
+\paragraph{Agents acting for people.}
+Personal agents in collective processes are being built: AI representatives that deliberate for their users~\cite{low2026habermolt}, delegates that schedule meetings, compared under several communication structures~\cite{zou2026calbench}, and proxies that elicit preferences from bidders in auctions~\cite{huang2025accelerated}.
+Self-sovereign digital agents act for people in grassroots digital social contracts~\cite{poupko2022ssda}.
+None of these limits the questions to each person and compares organizations against the optimum.
+
+\paragraph{Crowds, distributed agreement, and group activities.}
+In crowdsourcing, questions to people are the cost, but the people answer about outside items and do not benefit from the outcome; with fleeting workers, adaptivity does not help~\cite{karger2014budget}, whereas our members persist and share tastes.
+Plurality consensus~\cite{becchetti2015plurality} studies coordinator-free agreement among agents that already know their preferences.
+The group activity selection problem~\cite{darmann2018gasp} is the full-information version of forming several groups, our natural next step.
 
 \section{Outlook}
 
 \begin{remark}
-On all instances, the central Agora's guarantee is open.
-Explore-then-commit is close to the optimum on random instances, but a worst-case guarantee needs care: an option that a small sample makes look good may be worse than one that it makes look bad.
-Choosing which options to ask about, based on the answers so far, resembles choosing which arm to pull in a bandit problem, with a twist: here the ``yes'' answers about the chosen option are themselves the welfare.
+The worst case is settled, and the hidden favorite and large communities are understood; what lies between is open.
+A protocol that eliminates options sequentially, rather than exploring once, should do better~\cite{garivier2016etc,karnin2013almost}, and a sharp bound in terms of popularity and community size is missing, as is the case $b = 1$.
 \end{remark}
 
 \begin{remark}
-Natural next steps, each a small change to the model: an option runs only if enough members join; several options run at once and each member joins at most one, which is forming groups; agents start knowing part of what their members approve, so that they can answer some questions themselves; grassroots protocols that send fewer messages; and agents that act strategically for their members.
+Remark~\ref{rem:simulate} calls for measures that separate the grassroots from the central Agora: the largest number of messages any single agent handles, what any single agent learns about others, and protocols in which no agent plays a special role.
 \end{remark}
+
+\begin{remark}
+Natural next steps, each a small change to the model: an option runs only if enough members join; several options run at once and each member joins at most one, which is forming groups; agents start knowing part of what their members approve; and agents act strategically for their members.
+\end{remark}
+
+\bibliographystyle{plain}
+\bibliography{refs}
 
 \end{document}

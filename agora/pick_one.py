@@ -43,6 +43,25 @@ def random_popularity(n, m, top=0.6, seed=0):
     return Instance(accept, 1, np.full((n, m), UNKNOWN, dtype=np.int8))
 
 
+def popular(n, m, alpha, rest=None, seed=0):
+    """One popular option, approved by each member with probability alpha;
+    every other option with probability rest (default alpha / 2)."""
+    rng = np.random.default_rng(seed)
+    rest = alpha / 2 if rest is None else rest
+    p = np.full(m, rest)
+    p[rng.integers(m)] = alpha
+    accept = rng.random((n, m)) < p
+    return Instance(accept, 1, np.full((n, m), UNKNOWN, dtype=np.int8))
+
+
+def needle(n, m, seed=0):
+    """One member approves one option; no one approves anything else."""
+    rng = np.random.default_rng(seed)
+    accept = np.zeros((n, m), dtype=bool)
+    accept[rng.integers(n), rng.integers(m)] = True
+    return Instance(accept, 1, np.full((n, m), UNKNOWN, dtype=np.int8))
+
+
 def optimum(inst):
     return int(inst.accept.sum(0).max())
 
@@ -99,7 +118,11 @@ class Follower:
 
 
 class ExploreCommitCoordinator:
-    def __init__(self):
+    """Members are put in a random order first, so that the members who explore
+    each option form a uniformly random sample (used in the proof of the
+    large-community theorem)."""
+    def __init__(self, seed=0):
+        self.rng = np.random.default_rng(seed)
         self.phase, self.wait = "explore", 0
         self.yes = self.asked = None
         self.answers = {}
@@ -117,8 +140,9 @@ class ExploreCommitCoordinator:
             return []
         if self.phase == "explore":
             self.phase, self.wait = "commit", 2
-            return [("send", i, {"ask": o}) for i in range(n)
-                    for o in explore_options(i, m, v["budget"])]
+            order = self.rng.permutation(n)
+            return [("send", int(i), {"ask": o}) for pos, i in enumerate(order)
+                    for o in explore_options(pos, m, v["budget"])]
         if self.phase == "commit":
             rate = self.yes / np.maximum(self.asked, 1)
             self.leader = int(np.argmax(rate))
@@ -192,7 +216,7 @@ def run(inst, setting, budget, seed=0, eps=0.01):
                              for _ in range(inst.n)], mechanism=silos_mechanism)
     elif setting == "central":
         parts = dict(agents=[Follower() for _ in range(inst.n)],
-                     coordinator=ExploreCommitCoordinator())
+                     coordinator=ExploreCommitCoordinator(int(rng.integers(1 << 30))))
     elif setting == "grassroots":
         parts = dict(agents=[GrassrootsAgent(inst.n, inst.m, budget) for _ in range(inst.n)])
     else:

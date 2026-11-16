@@ -1,0 +1,153 @@
+\begin{thebibliography}{10}
+
+\bibitem{bardenet2015concentration}
+R{\'e}mi Bardenet and Odalric-Ambrym Maillard.
+\newblock Concentration inequalities for sampling without replacement.
+\newblock {\em Bernoulli}, 21(3), 2015.
+
+\bibitem{becchetti2015plurality}
+Luca Becchetti, Andrea Clementi, Emanuele Natale, Francesco Pasquale, and
+  Riccardo Silvestri.
+\newblock Plurality consensus in the gossip model.
+\newblock In {\em Proceedings of the 26th ACM-SIAM Symposium on Discrete
+  Algorithms (SODA)}, 2015.
+
+\bibitem{bentert2019comparing}
+Matthias Bentert and Piotr Skowron.
+\newblock Comparing election methods where each voter ranks only few
+  candidates.
+\newblock arXiv:1901.10848, 2019.
+
+\bibitem{colton1963model}
+Theodore Colton.
+\newblock A model for selecting one of two medical treatments.
+\newblock {\em Journal of the American Statistical Association}, 58:388--400,
+  1963.
+
+\bibitem{darmann2018gasp}
+Andreas Darmann, Edith Elkind, Sascha Kurz, J{\'e}r{\^o}me Lang, Joachim
+  Schauer, and Gerhard Woeginger.
+\newblock Group activity selection problem with approval preferences.
+\newblock {\em International Journal of Game Theory}, 47(3):767--796, 2018.
+
+\bibitem{filtser2019distributed}
+Arnold Filtser and Nimrod Talmon.
+\newblock Distributed monitoring of election winners.
+\newblock {\em Artificial Intelligence}, 2019.
+\newblock Conference version in AAMAS 2017.
+
+\bibitem{garivier2016etc}
+Aur{\'e}lien Garivier, Tor Lattimore, and Emilie Kaufmann.
+\newblock On explore-then-commit strategies.
+\newblock In {\em Advances in Neural Information Processing Systems 29 (NIPS)},
+  2016.
+
+\bibitem{gupta2016adaptivity}
+Anupam Gupta, Viswanath Nagarajan, and Sahil Singla.
+\newblock Adaptivity gaps for stochastic probing: Submodular and {XOS}
+  functions.
+\newblock arXiv:1608.00673, 2016.
+
+\bibitem{halpern2024computing}
+Daniel Halpern, Safwan Hossain, and Jamie Tucker-Foltz.
+\newblock Computing voting rules with elicited incomplete votes.
+\newblock arXiv:2402.11104, 2024.
+
+\bibitem{halpern2023representation}
+Daniel Halpern, Gregory Kehne, Ariel~D. Procaccia, Jamie Tucker-Foltz, and
+  Manuel W{\"u}thrich.
+\newblock Representation with incomplete votes.
+\newblock In {\em Proceedings of the 37th AAAI Conference on Artificial
+  Intelligence (AAAI)}, pages 5657--5664, 2023.
+
+\bibitem{hillel2013distributed}
+Eshcar Hillel, Zohar Karnin, Tomer Koren, Ronny Lempel, and Oren Somekh.
+\newblock Distributed exploration in multi-armed bandits.
+\newblock arXiv:1311.0800, 2013.
+
+\bibitem{huang2025accelerated}
+Huang, Marmolejo-Coss{\'i}o, Lock, and Parkes.
+\newblock Accelerated preference elicitation with {LLM}-based proxies.
+\newblock In {\em Proceedings of the 21st Conference on Web and Internet
+  Economics (WINE)}, 2025.
+
+\bibitem{karger2014budget}
+David~R. Karger, Sewoong Oh, and Devavrat Shah.
+\newblock Budget-optimal task allocation for reliable crowdsourcing systems.
+\newblock {\em Operations Research}, 62(1), 2014.
+
+\bibitem{karnin2013almost}
+Zohar Karnin, Tomer Koren, and Oren Somekh.
+\newblock Almost optimal exploration in multi-armed bandits.
+\newblock In {\em Proceedings of the 30th International Conference on Machine
+  Learning (ICML)}, 2013.
+
+\bibitem{kempe2019communication}
+David Kempe.
+\newblock Communication, distortion, and randomness in metric voting.
+\newblock arXiv:1911.08129, 2019.
+
+\bibitem{low2026habermolt}
+Low, Duys, Formanek, Bakker, and Hammond.
+\newblock Habermolt: Delegating deliberation to {AI} representatives.
+\newblock arXiv:2605.24413, 2026.
+
+\bibitem{lu2011robust}
+Tyler Lu and Craig Boutilier.
+\newblock Robust approximation and incremental elicitation in voting protocols.
+\newblock In {\em Proceedings of the 22nd International Joint Conference on
+  Artificial Intelligence (IJCAI)}, 2011.
+
+\bibitem{mandal2019thrifty}
+Debmalya Mandal, Ariel~D. Procaccia, Nisarg Shah, and David~P. Woodruff.
+\newblock Efficient and thrifty voting by any means necessary.
+\newblock In {\em Advances in Neural Information Processing Systems 32
+  (NeurIPS)}, 2019.
+
+\bibitem{mandal2020optimal}
+Debmalya Mandal, Nisarg Shah, and David~P. Woodruff.
+\newblock Optimal communication-distortion tradeoff in voting.
+\newblock In {\em Proceedings of the 21st ACM Conference on Economics and
+  Computation (EC)}, 2020.
+
+\bibitem{naamani2014reaching}
+Lihi Naamani-Dery, Meir Kalech, Lior Rokach, and Bracha Shapira.
+\newblock Reaching a joint decision with minimal elicitation of voter
+  preferences.
+\newblock {\em Information Sciences}, 278:466--487, 2014.
+
+\bibitem{poupko2022ssda}
+Ouri Poupko, Ehud Shapiro, and Nimrod Talmon.
+\newblock Self-sovereign digital agents for a grassroots digital society.
+\newblock In {\em Proceedings of the 42nd IEEE International Conference on
+  Distributed Computing Systems (ICDCS)}, 2022.
+
+\bibitem{shapiro2026grassroots}
+Ehud Shapiro.
+\newblock Grassroots platforms with atomic transactions.
+\newblock {\em Theoretical Computer Science}, 2026.
+\newblock arXiv:2502.11299.
+
+\bibitem{shi2021federated}
+Chengshuai Shi and Cong Shen.
+\newblock Federated multi-armed bandits.
+\newblock In {\em Proceedings of the 35th AAAI Conference on Artificial
+  Intelligence (AAAI)}, 2021.
+
+\bibitem{tao2019collaborative}
+Chao Tao, Qin Zhang, and Yuan Zhou.
+\newblock Collaborative learning with limited interaction: Tight bounds for
+  distributed exploration in multi-armed bandits.
+\newblock arXiv:1904.03293, 2019.
+
+\bibitem{zimet2026query}
+Itay~Asher Zimet, Shiri Alouf-Heffetz, and Nimrod Talmon.
+\newblock Query-based committee selection.
+\newblock arXiv:2603.29729, 2026.
+
+\bibitem{zou2026calbench}
+Zou, Yao, She, Goodman, and Hawkins.
+\newblock {CalBench}.
+\newblock arXiv:2605.09823, 2026.
+
+\end{thebibliography}
