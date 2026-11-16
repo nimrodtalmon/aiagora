@@ -53,6 +53,14 @@ with open(os.path.join(ROOT, 'runs', 'pick_one.csv')) as f:
 CURVE = {s: [sum(curve[(s, b)]) / len(curve[(s, b)]) for b in range(1, 11)]
          for s in ('silos', 'central')}
 
+scale = defaultdict(list)
+with open(os.path.join(ROOT, 'runs', 'pick_one_scale.csv')) as f:
+    for row in csv.DictReader(f):
+        if row['alpha'] == '0.5':
+            scale[(row['setting'], int(row['n']))].append(float(row['ratio']))
+SCALE_N = sorted({n for _, n in scale})
+SCALE = {s: [sum(scale[(s, n)]) / len(scale[(s, n)]) for n in SCALE_N] for s in ('silos', 'central')}
+
 
 # ---------- svg helpers ----------
 def svg(w, h, body, extra=''):
@@ -190,6 +198,44 @@ def curve_vis():
     return svg(w, h, b)
 
 
+def tastes_vis():
+    w, h, b = 1640, 560, ''
+    for side, (x0, title, liked, big) in enumerate([(0, 'Everyone likes the garden', 'all', '× 3'),
+                                                     (860, 'Only one person likes chess', 'one', '× 1')]):
+        b += f'<rect x="{x0}" y="0" width="780" height="540" rx="24" fill="{CARD}" stroke="{GL}" stroke-width="3"/>'
+        b += text(x0 + 390, 70, title, 44, DK, weight=800)
+        for k in range(N):
+            cx = x0 + 70 + k * 91
+            on = liked == 'all' or k == 3
+            b += head(cx, 180, 26, DK if on else GL)
+            if on:
+                b += f'<rect x="{cx-40}" y="270" width="80" height="36" rx="18" fill="{OR}"/>'
+        b += text(x0 + 390, 460, big, 120, OR if side == 0 else GR, weight=800)
+    return svg(w, h, b)
+
+
+def scale_vis():
+    w, h = 1300, 600
+    X0, X1, Y0, Y1 = 150, 1200, 500, 40
+    L = [math.log(n) for n in SCALE_N]
+    xs = lambda n: X0 + (math.log(n) - L[0]) / (L[-1] - L[0]) * (X1 - X0)
+    ys = lambda v: Y0 - v * (Y0 - Y1)
+    b = ''
+    for v in (0, .5, 1):
+        b += f'<line x1="{X0}" y1="{ys(v):.0f}" x2="{X1}" y2="{ys(v):.0f}" stroke="{GL}" stroke-width="2"/>'
+        b += text(X0 - 20, ys(v) + 12, f'{int(v*100)}%', 32, GR, 'end')
+    for n in SCALE_N:
+        b += text(xs(n), Y0 + 50, str(n), 32, GR)
+    b += text((X0 + X1) / 2, Y0 + 98, 'people in the neighborhood', 34, GR, weight=700)
+    b += text(X0 - 120, (Y0 + Y1) / 2, 'of the best', 34, GR, weight=700,
+              extra=f'transform="rotate(-90 {X0-120} {(Y0+Y1)/2})"')
+    for s, col, lab, k, dy in (('silos', GR, 'alone', -2, 60), ('central', OR, 'together', 2, -34)):
+        pts = ' '.join(f'{xs(n):.0f},{ys(v):.0f}' for n, v in zip(SCALE_N, SCALE[s]))
+        b += f'<polyline points="{pts}" fill="none" stroke="{col}" stroke-width="10" stroke-linejoin="round"/>'
+        b += text(xs(SCALE_N[k]), ys(SCALE[s][k]) + dy, lab, 44, col, 'middle', 800)
+    return svg(w, h, b)
+
+
 # ---------- slides ----------
 TITLE = '''<section class="slide dark center">
   <p class="eyebrow">AI-Agora</p>
@@ -232,20 +278,28 @@ S(f'''<section class="slide dark center">
   <h1 class="huge" style="color:var(--orange)">× 3</h1>
   <p class="big">6 activities ÷ 2 questions</p>
   <p>Alone, agents can never guarantee more than 2 of every 6.<br>Together, everyone joins. No sharing scheme can gain more.</p>
-  <p class="muted small">Paper (draft): The Value of an Agora: A Simple Start</p>
+  <p class="muted small">Paper (draft): The Value of an Agora: When Personal Agents Should Share</p>
+</section>''')
+
+
+S(f'''<section class="slide light">
+  <p class="eyebrow">When does it help?</p>
+  <h2>Sharing helps only when tastes are shared</h2>
+  <div class="vis">{tastes_vis()}</div>
+</section>''')
+
+S(f'''<section class="slide light">
+  <p class="eyebrow">Bigger neighborhoods</p>
+  <h2>One popular activity is enough</h2>
+  <p class="sub">Half the people like it; each other activity, a quarter. Two questions each.</p>
+  <div class="vis">{scale_vis()}</div>
 </section>''')
 
 S(f'''<section class="slide light">
   <p class="eyebrow">The price</p>
   <h2>Sharing costs messages</h2>
-  <p class="sub">Same questions, same outcome. Messages are cheap, but not free.</p>
+  <p class="sub">Same outcome either way. Without a coordinator, one agent can also play it.</p>
   <div class="vis">{nets_vis()}</div>
-</section>''')
-
-S(f'''<section class="slide light">
-  <p class="eyebrow">Beyond the example</p>
-  <h2>Random neighborhoods: 40 people, 10 activities</h2>
-  <div class="vis">{curve_vis()}</div>
 </section>''')
 
 S('''<section class="slide dark">
@@ -254,7 +308,7 @@ S('''<section class="slide dark">
   <div class="rows ruled">
     <div class="row"><span class="n">1</span><p>Many activities at once: forming groups</p></div>
     <div class="row"><span class="n">2</span><p>Agents that already know their person</p></div>
-    <div class="row"><span class="n">3</span><p>Agents with interests of their own</p></div>
+    <div class="row"><span class="n">3</span><p>No coordinator: trust, load, privacy</p></div>
   </div>
 </section>''')
 
