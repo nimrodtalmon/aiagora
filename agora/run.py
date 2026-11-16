@@ -7,14 +7,15 @@ import numpy as np
 from .engine import Engine
 from .tasks.groups import optimum, welfare, is_feasible
 from .data.synthetic import neighborhood
-from .protocols import groups_silos, groups_central
+from .protocols import groups_silos, groups_central, groups_grassroots
 
-SETTINGS = {"silos": groups_silos, "central": groups_central}
+SETTINGS = {"silos": groups_silos, "central": groups_central,
+            "grassroots": groups_grassroots, "central-smart": groups_central.Smart}
 
 
 def run(inst, setting, budget=None, eps=0.01, seed=0):
     rng = np.random.default_rng(seed)
-    parts = SETTINGS[setting].make(inst, rng)
+    parts = SETTINGS[setting].make(inst, rng, budget=budget)
     res = Engine(inst, attention_budget=budget, eps=eps, **parts).run()
     out = res["outcome"] or {}
     assert is_feasible(out, inst.accept, inst.min_size)

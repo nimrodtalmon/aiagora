@@ -5,16 +5,24 @@ A framework for playing with AI-Agora: each member of a community has a personal
 The code follows the basic model of the AI-Agora position paper and the BSF proposal, so what is simulated is what the theory talks about.
 
 ## Status
-P0: forming groups (single membership, a minimum group size), simulated members, rule-based agents, two settings — **silos** and a **central Agora** — measured against the exact optimum.
+Forming groups (single membership, a minimum group size), simulated members, rule-based agents, measured against the exact optimum, in three settings:
+- **silos** — each agent asks its member alone, then reports once to a mechanism;
+- **central Agora** — a coordinator directs the questions (`central`, and a smarter `central-smart`);
+- **grassroots Agora** — no coordinator; the simplest protocol replicates the coordinator at every agent (all agents broadcast, all compute the same plan, so they always agree).
 
-![first sweep](runs/sweep1.png)
+`agora/benchmarks.py` has a reference point that already knows how popular each initiative is.
+
+![sweep](runs/sweep2.png)
+
+**Replay viewer:** `runs/replay.html` — one neighborhood, all settings, round by round.
 
 ## Run
 ```
 pip install -r requirements.txt
 python -m agora.run --setting central --budget 4 --informed 0.3 --out runs/one.json
 python experiments/sweep.py --seeds 20 --out runs/sweep1
-python experiments/plot_sweep.py runs/sweep1.csv
+python experiments/plot_sweep.py runs/sweep2.csv
+python -m agora.replay --budget 6 --out runs/replay.html
 ```
 
 ## Layout
@@ -23,11 +31,12 @@ python experiments/plot_sweep.py runs/sweep1.csv
 - `agora/tasks/groups.py` — welfare, feasibility, exact optimum (ILP)
 - `agora/protocols/` — one file per setting
 - `agora/data/synthetic.py` — the neighborhood generator
+- `agora/replay.py`, `web/viewer.html` — replay frames and the viewer
 - `experiments/` — sweeps and plots
 
 ## Plan
-1. P0 — forming groups: silos vs central *(now)*
-2. P1 — grassroots Agora; federating groups into larger communities; deciding and dividing
+1. P0 — forming groups: silos, central, grassroots; replay viewer *(now)*
+2. P1 — smarter grassroots protocols; federating groups into larger communities; deciding and dividing
 3. P2 — web app on talmonlab (`/agora`): replay runs, then play mode with real people
 4. P3 — LLM agents and LLM members
 5. P4 — the full chain: form groups, found a constitution, decide, divide, federate

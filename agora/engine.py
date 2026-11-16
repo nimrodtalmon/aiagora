@@ -5,7 +5,8 @@ Each round, every policy gets only its own view and returns a list of actions:
   ("ask", j)            agent asks its member about initiative j  (1 attention)
   ("send", to, payload) message to an agent id or to "C"           (eps each)
   ("report", payload)   silos only: one free report to the mechanism
-  ("output", outcome)   the run's outcome (coordinator or mechanism)
+  ("output", outcome)   the coordinator's outcome; in a grassroots Agora every
+                        agent outputs, and the run succeeds only if all agree
 
 Answers to questions and messages become visible in the next round.
 The event log is the source of truth; costs and metrics are computed from it.
@@ -26,7 +27,7 @@ class SimMember:
 
 class Engine:
     def __init__(self, inst, agents, coordinator=None, mechanism=None,
-                 attention_budget=None, eps=0.01, max_rounds=200):
+                 attention_budget=None, eps=0.01, max_rounds=2000):
         self.inst = inst
         self.agents = agents
         self.coord = coordinator
@@ -42,7 +43,9 @@ class Engine:
         self.inbox = {i: [] for i in range(inst.n)}
         self.inbox["C"] = []
         self.reports = {}
+        self.agent_outputs = {}
         self.outcome = None
+        self.agreed = None
 
     def log(self, t, kind, **kw):
         self.events.append({"t": t, "type": kind, **kw})
@@ -71,6 +74,13 @@ class Engine:
                 self._apply(t, who, a)
             if self.outcome is not None:
                 break
+            if (self.coord is None and self.mechanism is None
+                    and len(self.agent_outputs) == self.inst.n):
+                outs = list(self.agent_outputs.values())
+                self.agreed = all(o == outs[0] for o in outs)
+                self.outcome = outs[0] if self.agreed else {}
+                self.log(t, "agreement", agreed=self.agreed)
+                break
             if self.mechanism is not None and len(self.reports) == self.inst.n:
                 self.outcome = self.mechanism(self.reports, self.inst)
                 self.log(t, "output", by="M", outcome=self.outcome)
@@ -97,7 +107,10 @@ class Engine:
             self.reports[who] = a[1]
             self.log(t, "report", agent=who, payload=a[1])
         elif kind == "output":
-            self.outcome = a[1]
+            if who == "C":
+                self.outcome = a[1]
+            else:
+                self.agent_outputs[who] = a[1]
             self.log(t, "output", by=who, outcome=a[1])
 
     def result(self):
@@ -108,5 +121,6 @@ class Engine:
             "messages": self.msgs,
             "cost": sum(self.att) + self.eps * self.msgs,
             "rounds": self.events[-1]["t"] + 1 if self.events else 0,
+            "agreed": self.agreed,
             "events": self.events,
         }

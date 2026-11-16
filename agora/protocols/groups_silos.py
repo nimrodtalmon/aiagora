@@ -38,7 +38,7 @@ def mechanism(reports, inst):
     return best_assignment(allowed, inst.min_size)
 
 
-def make(inst, rng):
+def make(inst, rng, budget=None):
     return dict(agents=[SilosAgent(np.random.default_rng(rng.integers(1 << 30)))
                         for _ in range(inst.n)],
                 mechanism=mechanism)

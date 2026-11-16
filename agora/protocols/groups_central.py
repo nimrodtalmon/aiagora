@@ -1,16 +1,13 @@
 """Central Agora: agents talk only to a coordinator, which directs the questions.
 
 Round 0: each agent tells the coordinator what it already knows (one message
-per known fact). Then, repeatedly, the coordinator compares two numbers:
-  - the welfare it can guarantee now (known YES pairs only), and
-  - the welfare it could reach if every still-askable unknown were a YES.
-If they are equal, no answer can help, so it outputs. Otherwise it asks
-each member who is not yet served about one unknown initiative, chosen by
-how popular it looks so far (Thompson sampling), through the member's agent.
+per known fact). Then the coordinator repeats the planning step of
+groups_plan.py: it either outputs, or sends questions to members' agents,
+which ask their members and report the answers back.
 """
 import numpy as np
 from ..model import UNKNOWN, NO, YES
-from ..tasks.groups import best_assignment, welfare
+from .groups_plan import plan
 
 
 class CentralAgent:
@@ -39,8 +36,10 @@ class CentralAgent:
 
 
 class Coordinator:
-    def __init__(self, rng):
+    def __init__(self, rng, smart=False, batch=None):
         self.rng = rng
+        self.smart = smart
+        self.batch = batch
         self.K = None
         self.waiting = 0
         self.asked = None
@@ -57,36 +56,23 @@ class Coordinator:
         if self.waiting:
             self.waiting -= 1
             return []
-        budget = v["budget"]
-        can_ask = np.ones(n, dtype=bool) if budget is None else self.asked < budget
-        sure = self.K == YES
-        maybe = sure | ((self.K == UNKNOWN) & can_ask[:, None])
-        now = best_assignment(sure, v["min_size"])
-        hope = best_assignment(maybe, v["min_size"])
-        if welfare(hope) == welfare(now):
-            return [("output", now)]
-        # each member not yet served (if none: every member) is asked about one
-        # unknown initiative, chosen by Thompson sampling on how popular each
-        # initiative looks so far: explores early, exploits once it learns
-        yes = (self.K == YES).sum(0)
-        no = (self.K == NO).sum(0)
-        served = {i for g in now.values() for i in g}
-        askable = [i for i in range(n)
-                   if can_ask[i] and (self.K[i] == UNKNOWN).any()]
-        targets = [i for i in askable if i not in served] or askable
-        out = []
-        for i in targets:
-            unk = np.flatnonzero(self.K[i] == UNKNOWN)
-            score = self.rng.beta(yes[unk] + 1, no[unk] + 1)
-            j = int(unk[np.argmax(score)])
-            self.asked[i] += 1
-            out.append(("send", i, {"ask": j}))
-        if not out:
+        now, qs = plan(self.K, self.asked, v["budget"], v["min_size"],
+                       self.rng, smart=self.smart, batch=self.batch)
+        if qs is None:
             return [("output", now)]
         self.waiting = 2          # agent asks next round, its reply lands after
-        return out
+        return [("send", i, {"ask": j}) for i, j in qs]
 
 
-def make(inst, rng):
+def make(inst, rng, budget=None, smart=False, batch=None):
     return dict(agents=[CentralAgent() for _ in range(inst.n)],
-                coordinator=Coordinator(rng))
+                coordinator=Coordinator(rng, smart=smart, batch=batch))
+
+
+class Smart:
+    """Central Agora with the smarter planner: spread first questions evenly,
+    then greedy; asks at most 10 members per cycle, so it learns in between
+    (rounds are free in the basic model)."""
+    @staticmethod
+    def make(inst, rng, budget=None):
+        return make(inst, rng, budget=budget, smart=True, batch=10)

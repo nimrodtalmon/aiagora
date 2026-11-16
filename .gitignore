@@ -3,3 +3,6 @@ __pycache__/
 runs/*
 !runs/sweep1.csv
 !runs/sweep1.png
+!runs/sweep2.csv
+!runs/sweep2.png
+!runs/replay.html

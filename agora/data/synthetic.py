@@ -2,10 +2,10 @@
 import numpy as np
 from ..model import Instance, UNKNOWN
 
-INITIATIVES = ["community garden", "carpool north", "carpool south", "running club",
-               "book club", "solar purchase", "kids playgroup", "tool library",
-               "street cleanup", "choir", "chess evening", "shared nanny",
-               "bulk groceries", "dog walking", "repair cafe", "language exchange"]
+INITIATIVES = ["garden", "carpool north", "carpool south", "running club",
+               "book club", "solar panels", "playgroup", "tool library",
+               "street cleanup", "choir", "chess", "shared nanny",
+               "bulk groceries", "dog walking", "repair cafe", "languages"]
 
 
 def neighborhood(n=30, m=12, min_size=3, pop=(0.03, 0.25), informed=0.0, seed=0):

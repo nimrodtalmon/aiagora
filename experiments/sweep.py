@@ -29,7 +29,7 @@ def main():
     a = ap.parse_args()
     infs = [float(x) for x in a.informed.split(",")]
     jobs = [(s, b, p, seed, a.n, a.m, a.min_size)
-            for s in ("silos", "central") for b in range(1, a.m + 1)
+            for s in ("silos", "central", "grassroots") for b in range(1, a.m + 1)
             for p in infs for seed in range(a.seeds)]
     t = time.time()
     with ProcessPoolExecutor() as ex:
