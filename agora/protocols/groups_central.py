@@ -36,8 +36,9 @@ class CentralAgent:
 
 
 class Coordinator:
-    def __init__(self, rng, smart=False, batch=None):
-        self.rng = rng
+    def __init__(self, seed, smart=False, batch=None):
+        self.seed = seed
+        self.cycle = 0
         self.smart = smart
         self.batch = batch
         self.K = None
@@ -56,8 +57,12 @@ class Coordinator:
         if self.waiting:
             self.waiting -= 1
             return []
+        # randomness per planning cycle, drawn exactly as the grassroots agents
+        # draw it, so both settings make the same decisions
+        rng = np.random.default_rng([self.seed, self.cycle])
+        self.cycle += 1
         now, qs = plan(self.K, self.asked, v["budget"], v["min_size"],
-                       self.rng, smart=self.smart, batch=self.batch)
+                       rng, smart=self.smart, batch=self.batch)
         if qs is None:
             return [("output", now)]
         self.waiting = 2          # agent asks next round, its reply lands after
@@ -66,7 +71,8 @@ class Coordinator:
 
 def make(inst, rng, budget=None, smart=False, batch=None):
     return dict(agents=[CentralAgent() for _ in range(inst.n)],
-                coordinator=Coordinator(rng, smart=smart, batch=batch))
+                coordinator=Coordinator(int(rng.integers(1 << 30)),
+                                        smart=smart, batch=batch))
 
 
 class Smart:

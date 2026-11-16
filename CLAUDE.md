@@ -17,5 +17,5 @@ A simulation framework (later also a live web app) for AI-Agora. Not related to 
 
 ## Conventions
 - Python 3, numpy/scipy/matplotlib only for now; no build step for any future web UI (the talmonlab server has no Node).
-- Future web app: talmonlab.bgu.ac.il/agora, port 4501 (see the talmonlab repo's server/apps.json).
+- Web app: `web/server.py` (standard library), live at https://talmonlab.bgu.ac.il/agora/ on port 5401 (entry in the talmonlab repo's server/apps.json; the server pulls this repo every 5 minutes). Links in the page must stay relative.
 - `runs/` holds outputs; only small headline results are committed.

@@ -21,7 +21,7 @@ def frames(inst, res):
     for e in res["events"]:
         by_round.setdefault(e["t"], []).append(e)
     rounds = max(by_round) + 1 if by_round else 1
-    out, att, msgs = [], 0, 0
+    out, att, msgs, groups = [], 0, 0, None
     for t in range(rounds):
         asked, sent = [], 0
         for e in by_round.get(t, []):
@@ -32,7 +32,8 @@ def frames(inst, res):
             elif e["type"] == "msg":
                 sent += 1
         msgs += sent
-        groups = best_assignment(known == YES, inst.min_size)
+        if groups is None or asked:          # re-solve only when knowledge changed
+            groups = best_assignment(known == YES, inst.min_size)
         out.append({"known": known.astype(int).tolist(), "asked": asked,
                     "groups": {str(j): g for j, g in groups.items()},
                     "attention": att, "messages": msgs, "sent": sent,
@@ -72,7 +73,8 @@ def main():
     ap.add_argument("--out", default="runs/replay.html")
     a = ap.parse_args()
     inst = neighborhood(a.n, a.m, a.min_size, informed=a.informed, seed=a.seed)
-    results = {s: run(inst, s, budget=a.budget, seed=a.seed) for s in SETTINGS}
+    results = {s: run(inst, s, budget=a.budget, seed=a.seed)
+               for s in ("silos", "central", "grassroots")}
     write_html(bundle(inst, results, vars(a)), a.out)
     print(a.out)
 

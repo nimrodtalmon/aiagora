@@ -14,7 +14,7 @@ Forming groups (single membership, a minimum group size), simulated members, rul
 
 ![sweep](runs/sweep2.png)
 
-**Replay viewer:** `runs/replay.html` — one neighborhood, all settings, round by round.
+**Live:** https://talmonlab.bgu.ac.il/agora/ — pick a neighborhood, run all three settings, replay them round by round (`web/server.py`, `web/viewer.html`). A saved replay: `runs/replay.html`.
 
 ## Run
 ```
@@ -37,6 +37,6 @@ python -m agora.replay --budget 6 --out runs/replay.html
 ## Plan
 1. P0 — forming groups: silos, central, grassroots; replay viewer *(now)*
 2. P1 — smarter grassroots protocols; federating groups into larger communities; deciding and dividing
-3. P2 — web app on talmonlab (`/agora`): replay runs, then play mode with real people
+3. P2 — web app on talmonlab (`/agora`): replay runs *(done)*, then play mode with real people
 4. P3 — LLM agents and LLM members
 5. P4 — the full chain: form groups, found a constitution, decide, divide, federate
