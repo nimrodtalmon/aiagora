@@ -14,7 +14,9 @@ Forming groups (single membership, a minimum group size), simulated members, rul
 
 ![sweep](runs/sweep2.png)
 
-**Live:** https://talmonlab.bgu.ac.il/agora/ — pick a neighborhood, run all three settings, replay them round by round (`web/server.py`, `web/viewer.html`). A saved replay: `runs/replay.html`.
+**Live:** https://talmonlab.bgu.ac.il/agora/ — an explainer in slides on the simplest case (`web/deck/src/build.py`, zutot deck engine); https://talmonlab.bgu.ac.il/agora/play — the playground for forming groups (`web/viewer.html`).
+
+**Simplest model ("pick one"):** `agora/pick_one.py`; paper seed in `paper/` (`main.tex`, `main.pdf`): silos guarantee exactly questions/options of the best; sharing reaches the best on hidden-favorite instances; figure from `experiments/pick_one_plot.py`.
 
 ## Run
 ```

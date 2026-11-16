@@ -2,7 +2,8 @@
 
     python web/server.py 5401      -> http://127.0.0.1:5401/
 
-GET /                    the viewer
+GET /                    the explainer deck (web/deck, built by web/deck/src/build.py)
+GET /play                the playground (web/viewer.html)
 GET /api/run?n=&m=&k=&b=&p=&seed=   run all settings on one neighborhood (JSON)
 
 Standard library only (plus the simulator's numpy/scipy). Links are relative,
@@ -67,10 +68,18 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         url = urlparse(self.path)
-        if url.path in ("/", "/index.html"):
+        path = url.path[len("/play"):] if url.path.startswith("/play/api/") else url.path
+        if path in ("/", "/index.html"):                 # the explainer deck
+            html = open(os.path.join(ROOT, "web", "deck", "index.html"), "rb").read()
+            return self.send(200, html, "text/html; charset=utf-8")
+        if path in ("/assets/deck.css", "/assets/deck.js"):
+            body = open(os.path.join(ROOT, "web", "deck", path.lstrip("/")), "rb").read()
+            ctype = "text/css" if path.endswith(".css") else "application/javascript"
+            return self.send(200, body, ctype + "; charset=utf-8")
+        if path in ("/play", "/play/"):                  # the playground
             html = open(os.path.join(ROOT, "web", "viewer.html"), "rb").read()
             return self.send(200, html, "text/html; charset=utf-8")
-        if url.path == "/api/run":
+        if path == "/api/run":
             try:
                 return self.send(200, compute(params(parse_qs(url.query))),
                                  "application/json")
