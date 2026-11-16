@@ -6,3 +6,8 @@ runs/*
 !runs/sweep2.csv
 !runs/sweep2.png
 !runs/replay.html
+paper/*.aux
+paper/*.log
+paper/*.out
+!runs/pick_one.csv
+!runs/pick_one.png
