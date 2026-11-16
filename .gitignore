@@ -11,3 +11,4 @@ paper/*.log
 paper/*.out
 !runs/pick_one.csv
 !runs/pick_one.png
+research_notes/
