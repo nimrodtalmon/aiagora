@@ -115,14 +115,18 @@ function alone(w, b, r) {
 // together (central coordinator): explore with b-1 questions each (at least one), spread evenly;
 // then every person not yet asked about the leader is asked about it
 function together(w, b) {
-  const k = Math.max(1, Math.min(w.m, b) - 1), asks = [], yes = new Array(w.m).fill(0), cnt = new Array(w.m).fill(0);
+  // explore: with 2+ questions, everyone spends all but one, spread evenly;
+  // with 1 question, only a small sample explores (each sample member is then used up)
+  const asks = [], yes = new Array(w.m).fill(0), cnt = new Array(w.m).fill(0);
   const asked = w.likes.map(() => new Set());
-  for (let i = 0; i < w.n; i++) for (let t = 0; t < k; t++) {
-    const o = (i + t) % w.m, y = w.likes[i] === o;
-    asks.push([0, i, o, y]); asked[i].add(o); cnt[o]++; if (y) yes[o]++;
+  const sample = Math.min(Math.ceil(Math.pow(w.n / w.m, 2 / 3)), Math.floor(w.n / w.m)) || 1;
+  const plan = i => b === 1 ? (i < w.m * sample ? [i % w.m] : [])
+                            : [...Array(Math.max(1, Math.min(w.m, b) - 1)).keys()].map(t => (i + t) % w.m);
+  for (let i = 0; i < w.n; i++) for (const o of plan(i)) {
+    const y = w.likes[i] === o; asks.push([0, i, o, y]); asked[i].add(o); cnt[o]++; if (y) yes[o]++;
   }
-  const share = yes.map((y, o) => cnt[o] ? y / cnt[o] : 0), lead = share.indexOf(Math.max(...share));
-  if (b > k) for (let i = 0; i < w.n; i++) if (!asked[i].has(lead)) {
+  const share = yes.map((y, o) => cnt[o] ? y / cnt[o] : -1), lead = share.indexOf(Math.max(...share));
+  for (let i = 0; i < w.n; i++) if (!asked[i].has(lead) && asked[i].size < b) {
     const y = w.likes[i] === lead; asks.push([1, i, lead, y]); if (y) yes[lead]++;
   }
   return { asks, chosen: lead, joined: yes[lead], messages: 2 * asks.length };

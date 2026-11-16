@@ -47,7 +47,7 @@ Sharing is valuable exactly when tastes are shared.
 This paper makes this story precise.
 Agents that work alone can guarantee exactly the share of the best outcome given by the number of questions divided by the number of options (Proposition~\ref{prop:silos}).
 Sharing reaches the best outcome when everyone likes the same option (Proposition~\ref{prop:central}), which is the largest gain possible (Corollary~\ref{cor:value}), and gains nothing when no two members like the same option (Proposition~\ref{prop:needle}).
-In between, when one option is popular, sharing gets close to the best outcome as the community grows (Theorem~\ref{thm:large}).
+In between, when one option is popular, sharing gets close to the best outcome as the community grows, even with a single question per member (Theorems~\ref{thm:large} and~\ref{thm:one}).
 All of this can be done without a coordinator, with more messages (Proposition~\ref{prop:grassroots} and Remark~\ref{rem:simulate}).
 
 \section{The Model}
@@ -206,8 +206,28 @@ For fixed $m$, $b$ and~$\pop$, $\sample$ grows linearly in~$n$, so the bound ten
 \begin{remark}
 With $b \ge 2$, exploring costs no welfare: every member asked during exploration still has a question left for the leader.
 The only loss is choosing the wrong leader, so the problem becomes one of identifying the most approved option from samples.
-With $b = 1$, members who explore cannot also join, and the protocol must trade exploration against enrollment, as in the classic design of trying treatments on some patients and giving the rest the best one~\cite{colton1963model}.
 \end{remark}
+
+With a single question per member, a member who explores cannot also join, so exploration must be kept small, as in the classic design of trying treatments on some patients and giving the rest the best one~\cite{colton1963model}.
+A small sample still suffices in large communities.
+
+\begin{theorem}[One question each]\label{thm:one}
+Let $b = 1$, let $\sample = \lceil (n/m)^{2/3} \rceil$, and assume $m \cdot \sample \le n$.
+Consider the protocol in which the members are put in a uniformly random order, the member in position~$p < m \cdot \sample$ is asked about option~$p$ modulo~$m$, the leader is the option with the largest share of ``yes'' answers, and every member not asked yet is asked about the leader.
+On every community with popularity~$\pop$, its expected welfare is at least
+\[
+\left(1 - \frac{1}{n}\right)\left(1 - \frac{2}{\pop}\sqrt{\frac{\ln(2mn)}{2\cdot\sample}} - \frac{m\cdot\sample}{\pop\cdot n}\right)\cdot \opt ,
+\]
+which tends to $\opt$ as $n$ grows, for fixed $m$ and~$\pop$.
+\end{theorem}
+
+\begin{proof}
+Exactly $\sample$~members explore each option, and they form a uniformly random subset of the members.
+As in the proof of Theorem~\ref{thm:large}, with probability at least $1 - 1/n$ every share is within $\varepsilon = \sqrt{\ln(2mn)/(2\cdot\sample)}$ of the true fraction, and then the leader~$\ell$ satisfies $p_\ell > \pop - 2\varepsilon$.
+All members who approve~$\ell$ are enrolled, except those who explored another option, and there are fewer than $m \cdot \sample$ of these.
+So the welfare is more than $(\pop - 2\varepsilon)\, n - m\cdot\sample$, which is the bound.
+Since $m \cdot \sample / n$ is of the order of $(m/n)^{1/3}$ and $\sample$ grows with~$n$, the bound tends to~$1$.
+\end{proof}
 
 \begin{remark}
 Correlation between members is what drives the gain.
@@ -251,6 +271,7 @@ The central and grassroots Agoras reach the same outcomes; with two questions pe
 
 Figure~\ref{fig:scale} follows Theorem~\ref{thm:large}: one option is approved by each member with probability $0.2$ or $0.5$, and every other option with half that probability, with $10$~options and two questions per member.
 As the community grows from $10$ to $640$~members, the Agora rises from $54\%$ to $86\%$ of the optimum when the popular option has probability~$0.2$, and from $66\%$ to $99\%$ when it has probability~$0.5$; silos fall to $b/m = 20\%$, since in a large community the best option is rarely beaten by chance.
+With a single question per member (Theorem~\ref{thm:one}) and the popular option at~$0.5$, the Agora reaches $43\%$, $65\%$ and $82\%$ of the optimum with $160$, $640$ and $2560$~members, and silos about $b/m = 10\%$; the convergence is slower, since every explorer of another option is lost.
 
 \begin{figure}[t]
 \centering
@@ -301,7 +322,7 @@ The group activity selection problem~\cite{darmann2018gasp} is the full-informat
 
 \begin{remark}
 The worst case is settled, and the hidden favorite and large communities are understood; what lies between is open.
-A protocol that eliminates options sequentially, rather than exploring once, should do better~\cite{garivier2016etc,karnin2013almost}, and a sharp bound in terms of popularity and community size is missing, as is the case $b = 1$.
+A protocol that eliminates options sequentially, rather than exploring once, should do better~\cite{garivier2016etc,karnin2013almost}, especially with a single question per member, where every explorer of a losing option is lost; a sharp bound in terms of popularity and community size is missing.
 \end{remark}
 
 \begin{remark}

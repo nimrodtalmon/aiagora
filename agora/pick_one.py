@@ -66,7 +66,23 @@ def optimum(inst):
     return int(inst.accept.sum(0).max())
 
 
-def explore_options(i, m, budget):
+def one_question_sample(n, m):
+    """With one question per member, only a few members explore each option:
+    about (n/m)^(2/3) of them, so that exploration costs few members while
+    the estimates still become accurate as n grows."""
+    s = max(1, int(np.ceil((n / m) ** (2 / 3))))
+    return min(s, n // m) if n >= m else 1
+
+
+def explore_options(i, m, budget, n=None):
+    """With one question per member (budget 1, n given), only the first
+    m * one_question_sample(n, m) positions explore, one option each."""
+    if budget == 1 and n is not None:
+        return [i % m] if i < m * one_question_sample(n, m) else []
+    return explore_options_k(i, m, budget)
+
+
+def explore_options_k(i, m, budget):
     """Options member i is asked about while exploring: all but one of its
     questions (at least one), spread so that every option gets asked about
     about equally often. Fixed by the member's id, so no one has to assign it."""
@@ -142,13 +158,17 @@ class ExploreCommitCoordinator:
             self.phase, self.wait = "commit", 2
             order = self.rng.permutation(n)
             return [("send", int(i), {"ask": o}) for pos, i in enumerate(order)
-                    for o in explore_options(pos, m, v["budget"])]
+                    for o in explore_options(pos, m, v["budget"], n)]
         if self.phase == "commit":
-            rate = self.yes / np.maximum(self.asked, 1)
+            rate = np.where(self.asked > 0, self.yes / np.maximum(self.asked, 1), -1.0)
             self.leader = int(np.argmax(rate))
             self.phase, self.wait = "done", 2
-            ask = [i for i in range(n) if (i, self.leader) not in self.answers]
-            if ask and (v["budget"] is None or v["budget"] > len(explore_options(0, m, v["budget"]))):
+            asked = {i for (i, _) in self.answers}
+            if v["budget"] == 1:                     # only members who did not explore
+                ask = [i for i in range(n) if i not in asked]
+            else:
+                ask = [i for i in range(n) if (i, self.leader) not in self.answers]
+            if ask:
                 return [("send", i, {"ask": self.leader}) for i in ask]
             self.wait = 0
         enrolled = sorted(i for (i, o), a in self.answers.items()
@@ -173,7 +193,7 @@ class GrassrootsAgent:
             self.yes[(msg["from"], msg["o"])] = True
         if self.phase == "explore":                  # round 0
             self.phase = "share1"
-            self.first = explore_options(me, m, self.budget)
+            self.first = explore_options(me, m, self.budget, n)
             return [("ask", o) for o in self.first]
         if self.phase in ("share1", "share2"):       # rounds 1 and 3
             done = self.phase == "share2"
@@ -188,12 +208,12 @@ class GrassrootsAgent:
             return out
         if self.phase == "commit":                   # round 2: all see round-0 yes answers
             assigned = np.bincount([o for i in range(n)
-                                    for o in explore_options(i, m, self.budget)],
+                                    for o in explore_options(i, m, self.budget, n)],
                                    minlength=m)
             count = np.zeros(m)
             for (i, o) in self.yes:
                 count[o] += 1
-            self.leader = int(np.argmax(count / assigned))
+            self.leader = int(np.argmax(np.where(assigned > 0, count / np.maximum(assigned, 1), -1.0)))
             self.phase = "share2"
             if self.leader not in self.first and (self.budget is None
                                                   or self.budget > len(self.first)):
