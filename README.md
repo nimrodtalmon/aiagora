@@ -24,7 +24,6 @@ pip install -r requirements.txt
 python -m agora.run --setting central --budget 4 --informed 0.3 --out runs/one.json
 python experiments/sweep.py --seeds 20 --out runs/sweep1
 python experiments/plot_sweep.py runs/sweep2.csv
-python -m agora.replay --budget 6 --out runs/replay.html
 ```
 
 ## Layout
@@ -33,12 +32,12 @@ python -m agora.replay --budget 6 --out runs/replay.html
 - `agora/tasks/groups.py` — welfare, feasibility, exact optimum (ILP)
 - `agora/protocols/` — one file per setting
 - `agora/data/synthetic.py` — the neighborhood generator
-- `agora/replay.py`, `web/viewer.html` — replay frames and the viewer
+- `agora/pick_one.py` — the simplest model (one choice); `web/` — the deck and the playground
 - `experiments/` — sweeps and plots
 
 ## Plan
-1. P0 — forming groups: silos, central, grassroots; replay viewer *(now)*
+1. P0 — forming groups: silos, central, grassroots
 2. P1 — smarter grassroots protocols; federating groups into larger communities; deciding and dividing
-3. P2 — web app on talmonlab (`/agora`): replay runs *(done)*, then play mode with real people
+3. P2 — web app on talmonlab (`/agora`): slides and a playground *(done)*, then play mode with real people
 4. P3 — LLM agents and LLM members
 5. P4 — the full chain: form groups, found a constitution, decide, divide, federate
