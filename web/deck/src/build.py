@@ -215,8 +215,8 @@ def tastes_vis():
 
 
 def scale_vis():
-    w, h = 1300, 600
-    X0, X1, Y0, Y1 = 150, 1200, 500, 40
+    w, h = 1300, 560
+    X0, X1, Y0, Y1 = 150, 1200, 450, 30
     L = [math.log(n) for n in SCALE_N]
     xs = lambda n: X0 + (math.log(n) - L[0]) / (L[-1] - L[0]) * (X1 - X0)
     ys = lambda v: Y0 - v * (Y0 - Y1)
@@ -226,7 +226,7 @@ def scale_vis():
         b += text(X0 - 20, ys(v) + 12, f'{int(v*100)}%', 32, GR, 'end')
     for n in SCALE_N:
         b += text(xs(n), Y0 + 50, str(n), 32, GR)
-    b += text((X0 + X1) / 2, Y0 + 98, 'people in the neighborhood', 34, GR, weight=700)
+    b += text((X0 + X1) / 2, Y0 + 96, 'people in the neighborhood', 34, GR, weight=700)
     b += text(X0 - 120, (Y0 + Y1) / 2, 'of the best', 34, GR, weight=700,
               extra=f'transform="rotate(-90 {X0-120} {(Y0+Y1)/2})"')
     for s, col, lab, k, dy in (('silos', GR, 'alone', -2, 60), ('central', OR, 'together', 2, -34)):
