@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Builds web/brief/index.html: a briefing deck for Nimrod (what was done, in pictures).
-
-A briefing is not a talk: one idea per slide, a picture first, a status badge
-(proved / simulated / open), and a numbered "your call" slide he can answer
-tersely. It reuses the explainer deck's drawing helpers and real runs.
+"""Builds web/brief/index.html: the current state of the work as conference-style
+slides (motivation, model, results, related work, summary), for Nimrod to grasp
+quickly. Questions for him go in the chat, not on slides. It reuses the
+explainer deck's drawing helpers and real runs.
 
     python3 web/brief/src/build.py
 """
@@ -132,77 +131,76 @@ def related_vis():
 
 # ---------- slides ----------
 TITLE = f'''<section class="slide dark center">
-  <p class="eyebrow">Briefing · AI-Agora</p>
-  <h1>What I did, in pictures</h1>
-  <p class="muted">{DATE}</p>
+  <p class="eyebrow">AI-Agora</p>
+  <h1>The Value of an Agora</h1>
+  <p class="big">When personal agents should share</p>
+  <p class="muted">Nimrod Talmon · Ben-Gurion University · draft, {DATE}</p>
 </section>'''
 
 slides = [TITLE]
 S = slides.append
 
-S(f'''<section class="slide light">
-  <p class="eyebrow">Since last time</p>
-  <h2>The simplest case, end to end</h2>
-  <div class="vis">{since_vis()}</div>
-</section>''')
+
+def thm(label, title, sub, vis):
+    return f'''<section class="slide light">
+  <p class="eyebrow">{label}</p>
+  <h2>{title}</h2>
+  <p class="sub">{sub}</p>
+  <div class="vis">{vis}</div>
+</section>'''
+
+
+S(thm('Motivation', 'Soon, everyone has an AI agent',
+      'Each question costs attention; no one is committed without a yes.',
+      d.ask_vis()))
+
+S(thm('Model', 'Pick one activity, ask little, only yes counts',
+      'Few yes/no questions each. Welfare: who said yes to the chosen one.',
+      d.acts_vis()))
+
+S(thm('Model', 'Three ways to organize the agents',
+      'We compare the best guarantee of each, as a share of the best possible outcome.',
+      model_vis()))
+
+S(thm('Theorem 1 · alone', 'Alone guarantees exactly questions ÷ options',
+      'Everyone likes the garden, but an agent alone finds it only 2 times in 6.',
+      grids_vis(('silos',))))
+
+S(thm('Theorem 2 · a shared favorite', 'Together, everyone joins with 2 questions',
+      'Search together with question 1, join with question 2. A gain of 6 ÷ 2, the most possible.',
+      grids_vis()))
+
+S(thm('Theorem 3 · no shared tastes', 'Without shared tastes, no gain at all',
+      'One person’s answer says nothing about another’s, so there is nothing to share.',
+      d.tastes_vis()))
+
+S(thm('Theorem 4 · large communities', 'One popular activity: close to the best',
+      'Sample a few people per activity, then everyone asks about the leader. Simulation:',
+      d.scale_vis()))
+
+S(thm('Theorem 5 · one question each', 'Even with a single question each',
+      'Only a small sample explores (they are used up); the rest join the leader. Slower:',
+      bars_vis()))
+
+S(thm('Observation · no coordinator', 'Grassroots is never weaker than central',
+      'Agents can agree that agent 1 coordinates. The real differences: trust, load, privacy.',
+      crown_vis()))
 
 S(f'''<section class="slide light">
-  <p class="eyebrow">The model</p>
-  <h2>Pick one activity, ask little, only yes counts</h2>
-  <p class="sub">8 people, 6 activities, 2 yes/no questions per person. Three ways to organize:</p>
-  <div class="vis">{model_vis()}</div>
-</section>''')
-
-S(result(1, 'alone', 'proved', 'Alone gets exactly questions ÷ options',
-         'Everyone likes the garden, but an agent alone finds it only 2 times in 6.',
-         grids_vis(('silos',))))
-
-S(result(2, 'shared favorite', 'proved', 'Together: everyone joins with 2 questions',
-         'Search together with question 1, join with question 2. A gain of 6 ÷ 2, the most possible.',
-         grids_vis()))
-
-S(result(3, 'no shared tastes', 'proved', 'Without shared tastes, no gain at all',
-         'One person’s answer says nothing about another’s, so there is nothing to share.',
-         d.tastes_vis()))
-
-S(result(4, 'big communities', 'proved', 'One popular activity: close to the best',
-         'Sample a few people per activity, then everyone asks about the leader. Simulated below.',
-         d.scale_vis()))
-
-S(result(5, 'one question each', 'proved', 'Even with one question each',
-         'Only a small sample explores (they are used up); the rest join the leader. Slower.',
-         bars_vis()))
-
-S(result(6, 'no coordinator', 'proved', 'Grassroots is never weaker than central',
-         'In our model, agents can simply agree that agent 1 coordinates. The difference is elsewhere: trust, load, privacy.',
-         crown_vis()))
-
-S(f'''<section class="slide light">
-  <p class="eyebrow">Related work {badge('sim')}</p>
+  <p class="eyebrow">Related work</p>
   <h2>New: only yes counts, three settings, two costs</h2>
   <p class="sub">The theorems are simple; the model and the shared-tastes story are new.</p>
   {related_vis()}
-</section>'''.replace(badge('sim'), '<span class="badge sim">22+ papers read</span>'))
-
-S('''<section class="slide dark">
-  <p class="eyebrow">Your call</p>
-  <h2>Answer by number</h2>
-  <div class="rows ruled">
-    <div class="row"><span class="n">1</span><p>Is “pick one, ask little, only yes counts” the right core model?</p></div>
-    <div class="row"><span class="n">2</span><p>Next step: groups (many activities), or grassroots measures (trust, load)?</p></div>
-    <div class="row"><span class="n">3</span><p>Does result 6 change how the BSF model defines grassroots?</p></div>
-    <div class="row"><span class="n">4</span><p>Paper now, or more results first?</p></div>
-  </div>
 </section>''')
 
-S('''<section class="slide light">
-  <p class="eyebrow">Everything else</p>
-  <h2>Links</h2>
+S('''<section class="slide dark">
+  <p class="eyebrow">Summary</p>
+  <h2>Sharing pays exactly when tastes are shared</h2>
   <div class="rows ruled">
-    <div class="row"><span class="n">→</span><p><a class="interactive" href="../">Explainer slides</a> · talmonlab.bgu.ac.il/agora</p></div>
-    <div class="row"><span class="n">→</span><p><a class="interactive" href="../play">Playground</a> · alone vs together, with sliders</p></div>
-    <div class="row"><span class="n">→</span><p><a class="interactive" href="https://www.overleaf.com/project/6afb7a97a70946e905f9e3ab">Overleaf</a> · paper draft, related-work report</p></div>
-    <div class="row"><span class="n">→</span><p><a class="interactive" href="https://github.com/nimrodtalmon/aiagora">Code</a> · github.com/nimrodtalmon/aiagora</p></div>
+    <div class="row"><span class="n">1</span><p>Alone: questions ÷ options. Together: up to all of it.</p></div>
+    <div class="row"><span class="n">2</span><p>Open: smarter protocols, especially with one question each</p></div>
+    <div class="row"><span class="n">3</span><p>Next: many activities at once, i.e., forming groups</p></div>
+    <div class="row"><span class="n">4</span><p>Next: what really separates grassroots from central</p></div>
   </div>
 </section>''')
 
@@ -233,7 +231,7 @@ html = '''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Briefing · AI-Agora</title>
+<title>The Value of an Agora · AI-Agora</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300..900&display=swap">
