@@ -42,3 +42,13 @@ def make(inst, rng, budget=None):
     return dict(agents=[SilosAgent(np.random.default_rng(rng.integers(1 << 30)))
                         for _ in range(inst.n)],
                 mechanism=mechanism)
+
+
+class Convention:
+    """Silos with a convention: all agents ask in the same random order of
+    initiatives, drawn from a shared seed fixed in advance (no communication)."""
+    @staticmethod
+    def make(inst, rng, budget=None):
+        seed = int(rng.integers(1 << 30))
+        return dict(agents=[SilosAgent(np.random.default_rng(seed)) for _ in range(inst.n)],
+                    mechanism=mechanism)

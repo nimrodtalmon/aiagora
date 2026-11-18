@@ -7,10 +7,11 @@ import numpy as np
 from .engine import Engine
 from .tasks.groups import optimum, welfare, is_feasible
 from .data.synthetic import neighborhood
-from .protocols import groups_silos, groups_central, groups_grassroots
+from .protocols import groups_silos, groups_central, groups_grassroots, groups_ec
 
 SETTINGS = {"silos": groups_silos, "central": groups_central,
-            "grassroots": groups_grassroots, "central-smart": groups_central.Smart}
+            "grassroots": groups_grassroots, "central-smart": groups_central.Smart,
+            "silos-convention": groups_silos.Convention, "central-ec": groups_ec}
 
 
 def run(inst, setting, budget=None, eps=0.01, seed=0):

@@ -6,6 +6,7 @@ GET /        the explainer deck (web/deck, built by web/deck/src/build.py)
 GET /play    the playground: alone vs together (web/play.html, runs in the browser)
 GET /brief/       research brief: the current results (web/brief/src/build.py)
 GET /directions/  research brief: directions, evidence, app concept (web/directions/src/build.py)
+GET /groups/      research brief: Problem 1, groups with a threshold (web/groups/src/build.py)
 
 Standard library only. Links are relative, so the app works under any path
 prefix (talmonlab serves it at /agora/).
@@ -24,13 +25,14 @@ FILES = {
     "/play/": ("play.html", "text/html"),
     "/brief/": ("brief/index.html", "text/html"),
     "/directions/": ("directions/index.html", "text/html"),
+    "/groups/": ("groups/index.html", "text/html"),
 }
 
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = urlparse(self.path).path
-        if path in ("/brief", "/directions"):       # relative links need the slash
+        if path in ("/brief", "/directions", "/groups"):       # relative links need the slash
             self.send_response(301); self.send_header("Location", path.lstrip("/") + "/"); self.end_headers(); return
         f = FILES.get(path)
         if not f:
