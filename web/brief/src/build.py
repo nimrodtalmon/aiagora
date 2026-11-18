@@ -22,6 +22,20 @@ STYLE = kit.STYLE.replace('</style>', '''.split.wide { grid-template-columns: 1.
 .ev .big { font-size: 64px; font-weight: 800; color: var(--orange); line-height: 1.05; }
 .ev .q { font-size: 34px; font-weight: 700; line-height: 1.25; margin-top: 8px; }
 .ev .src { font-size: 26px; color: var(--gray); margin-top: 10px; }
+.ev.three { grid-template-columns: 1fr 1fr 1fr; margin-top: 40px; }
+.ev.three .big { font-size: 96px; }
+.ev.three .q { font-size: 40px; }
+.ev.three .src { font-size: 28px; }
+.try-row { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; margin-top: 6px; }
+.try-col svg { width: 100%; height: auto; }
+.try-h { font-size: 40px; margin: 0 0 6px; }
+.try-h b { color: var(--orange); font-size: 52px; }
+.try-n { font-size: 34px; color: var(--gray); margin-top: 6px; }
+.try-n span { color: var(--dark); font-weight: 800; }
+.two-cap { display: grid; grid-template-columns: 1fr 1fr; text-align: center; font-size: 38px; margin-top: -10px; }
+.two-cap p { margin: 0; } .two-cap b { color: var(--orange); }
+.try-col svg { max-height: 430px; }
+.chan svg { max-height: 500px; width: auto; }
 </style>''')
 OUT = os.path.join(HERE, '..', 'index.html')
 DATE = 'November 18, 2026'
@@ -37,9 +51,9 @@ def thm(*a, wide=False, **kw):
 
 
 # ---------- pictures ----------
-def channel_vis():
+def channel_vis(caps=None):
     """Broadcast reaches everyone; the agora reaches the likely yes."""
-    w, h = 1500, 560
+    w, h = 1500, 560 + (80 if caps else 0)
     rng_acc = [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0]
     est = [1, 0, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0]      # agents' guesses (one wrong each way)
     b = ''
@@ -54,6 +68,8 @@ def channel_vis():
             b += head(x, y, 17, OR if rng_acc[i] else GL)
         b += head(cx, cy, 24, DK)
         b += text(cx, 520, name, 44, DK, weight=800)
+        if caps:
+            b += f'<text x="{cx}" y="600" font-size="40" text-anchor="middle" fill="{DK}">{caps[c][0]} <tspan font-weight="800" fill="{OR}">{caps[c][1]}</tspan></text>'
     return svg(w, h, b)
 
 
@@ -74,7 +90,7 @@ def _xaxis(X0, X1, Y0, label=True, nmax=NMAX):
     return b
 
 
-def windows_vis(kind, rows=24, w=1000, nmax=1000):
+def windows_vis(kind, rows=24, w=1000, nmax=1000, line_id=None):
     """One row per type (largest share on top): the sizes n at which it forms."""
     X0, X1, top, rh = 150, w - 30, 30, 20
     lx = lambda n: _lx(n, X0, X1, nmax)
@@ -94,12 +110,14 @@ def windows_vis(kind, rows=24, w=1000, nmax=1000):
                 b += text(X0 + 10, y + 30, 'below the line:', 24, OR, 'start', 700)
                 b += text(X0 + 10, y + 58, 'never happens', 24, OR, 'start', 700)
         else:
-            x0 = lx(int(r['agora10_from']))
+            x0 = lx(int(r['agora0_from']))
             b += f'<rect x="{x0:.0f}" y="{y+3}" width="{X1-x0:.0f}" height="{rh-6}" rx="4" fill="{OR}"/>'
     b += text(X0 - 14, top + 14, 'share 0.5', 22, GR, 'end')
     b += text(X0 - 14, top + (rows - 1) * rh + 14, f'0.5/{rows}', 22, GR, 'end')
     b += text(40, top + rows * rh / 2, 'activities', 26, GR, weight=700, extra=f'transform="rotate(-90 40 {top + rows*rh/2})"')
     b += _xaxis(X0, X1, Y0, nmax=nmax)
+    if line_id:
+        b += f'<line id="{line_id}" x1="{X0}" y1="{top - 10}" x2="{X0}" y2="{Y0}" stroke="{OR if kind == "broadcast" else DK}" stroke-width="5"/>'
     return svg(w, Y0 + 92, b)
 
 
@@ -128,11 +146,10 @@ def counts_vis(w=1000, h=640):
 
 
 def evidence():
-    tiles = [('62%', 'named “spamming a large audience” as the top reason not to post', 'large mailing lists · Zhang, Ackerman, Karger, CHI 2015'),
-             ('38%', 'of self-censored posts: group posts, the highest of any location', '3.9M Facebook users · Das &amp; Kramer, ICWSM 2013'),
-             ('“too large”', 'neighborhoods got “too large to post the things they wanted to say”', 'Nextdoor interviews · Masden et al., CHI 2014'),
-             ('mute', 'muting is the main way people cope with WhatsApp groups', 'Dutch WhatsApp users · Mols &amp; Pridmore, 2020')]
-    return '<div class="ev">' + ''.join(
+    tiles = [('62%', 'of a 4,147-member mailing list: “spamming a large audience” deters posting, the most troubling issue', 'Zhang, Ackerman, Karger, CHI 2015'),
+             ('most', 'posts to groups are the most self-censored of all ways to share', '3.9M Facebook users · Das &amp; Kramer, ICWSM 2013'),
+             ('mute', 'many respondents mute WhatsApp groups to cope with communication overload', '43 respondents · Mols &amp; Pridmore, Mobile Media &amp; Comm. 2020')]
+    return '<div class="ev three">' + ''.join(
         f'<div class="tile"><div class="big">{a}</div><div class="q">{q}</div><div class="src">{s}</div></div>' for a, q, s in tiles) + '</div>'
 
 
@@ -144,6 +161,18 @@ def related_vis():
     return '<div class="rw">' + ''.join(
         f'<div class="box"><h3>{t}</h3><p class="who">{w}</p><p class="diff">{x}</p></div>' for t, w, x in boxes) + '</div>'
 
+
+
+TRY = f'''<section class="slide light tryit">
+  <p class="eyebrow">Example</p>
+  <h2>Grow the community: press 1 and 2</h2>
+  <p class="sub">300 activities; activity \\(t\\) interests a share \\(\\tfrac{{0.5}}{{t}}\\) of members; \\(k=4\\), \\(\\mathit{{tol}}=150\\), \\(\\mathit{{err}}=0\\).</p>
+  <p class="try-n"><span id="try-n">n = 40</span> members &nbsp;·&nbsp; 1 = smaller, 2 = larger &nbsp;·&nbsp; bars: the 24 most popular activities</p>
+  <div class="interactive try-row">
+    <div class="try-col"><p class="try-h">Broadcast: <b id="cnt-b">0</b> of 300 happen</p>{windows_vis('broadcast', line_id='ln-b')}</div>
+    <div class="try-col"><p class="try-h">Agora: <b id="cnt-a">0</b> of 300 happen</p>{windows_vis('agora', line_id='ln-a')}</div>
+  </div>
+</section>'''
 
 # ---------- slides ----------
 TITLE = f'''<section class="slide dark center">
@@ -171,12 +200,23 @@ S(thm('Model', f'An activity needs {k} people',
       f'<b>Welfare:</b> number of activities that happen. {tol}: the tolerance.',
       kit.card_vis(), wide=True))
 
-S(thm('Model', 'Two ways to post',
-      f"""<p><b>Broadcast:</b> everyone hears.</p>
+S(f"""<section class="slide light">
+  <p class="eyebrow">Model</p>
+  <h2>Two ways to post</h2>
+  <div class="box" style="margin-top:20px">
+<p><b>Broadcast:</b> everyone hears.</p>
 <p><b>Agora:</b> each agent guesses whether its member is interested; per activity, at most {err} guesses are wrong. Agents tell the members guessed interested, one by one, until {M('k-1')} say yes.</p>
-<p><b>Growing community:</b> each activity interests a fixed share {M('s')} of the members.</p>""",
-      'Orange: interested. In the agora, two guesses are wrong.',
-      channel_vis(), stack=True, pic_h=230))
+<p><b>Growing community:</b> each activity interests a fixed share {M('s')} of the members.</p>
+  </div>
+</section>""")
+
+S(f"""<section class="slide light">
+  <p class="eyebrow">Example</p>
+  <h2>One activity, two ways to post</h2>
+  <p class="sub">17 members, 5 interested (orange; the initiator in the middle); {M('k=3')}, {M(r'\mathit{{tol}}=5')}.</p>
+  <div class="vis chan">{channel_vis((('bothers 12 &gt; 5:', 'not posted'), ('bothers at most 2:', 'it happens')))}</div>
+  <p class="why" style="text-align:center;margin-top:0">In the agora, two guesses are wrong: one interested member is missed, one other is invited.</p>
+</section>""")
 
 S(thm('Theorem 1', 'Broadcast: each activity has a window of sizes',
       f"""<p>In broadcast, an activity happens iff at least {k} members are interested and at most {tol} are not.</p>
@@ -190,8 +230,10 @@ S(thm('Theorem 2', 'Agora: once an activity can happen, it always can',
       f"""<p>In the agora, if {M(r'\mathit{err} \le \mathit{tol}')}, an activity happens iff at least {M(r'k+\mathit{err}')} members are interested.</p>
 <p>With share {M('s')}, it happens for every</p>
 <p class="eq">{M(r'n \ \ge\ \tfrac{k+\mathit{err}}{s}')}</p>""",
-      f"<p>Only wrongly guessed members are bothered: at most {err}, for every {n}. Same example, {M(r'\mathit{err}=0')}: every {M(r'n \ge 40')}.</p>",
-      windows_vis('agora')))
+      f"<p>Only wrongly guessed members are bothered: at most {err}, for every {n}. The same holds if agents filter what their members see.</p>",
+      windows_vis('agora'), f"With {M(r'\mathit{err}=0')}: each bar starts where broadcast's does, and never ends."))
+
+S(TRY)
 
 S(thm('Example', 'Broadcast peaks and dies; the agora grows',
       f"""<p>300 activities; activity {M('t')} has share {M(r'\tfrac{0.5}{t}')}. Also {M('k=4')}, {M(r'\mathit{tol}=150')}.</p>
@@ -220,6 +262,34 @@ S('''<section class="slide light">
 
 slides.append(TITLE)
 
+TRY_JS = '''<script>
+(function () {
+  const NS = [4, 6, 8, 10, 14, 20, 28, 40, 56, 70, 84, 100, 120, 140, 152, 170, 200, 250, 300, 400, 600, 1000];
+  const K = 4, TOL = 150, ERR = 0, T = 300, X0 = 150, X1 = 970, NMIN = 4, NMAX = 1000;
+  let idx = 7;
+  const slide = document.querySelector('.slide.tryit');
+  const lx = n => X0 + (Math.log(n) - Math.log(NMIN)) / (Math.log(NMAX) - Math.log(NMIN)) * (X1 - X0);
+  function draw() {
+    const n = NS[idx]; let b = 0, a = 0;
+    for (let t = 1; t <= T; t++) {
+      const m = Math.floor(0.5 * n / t + 1e-9);
+      if (m >= K && n - m <= TOL) b++;
+      if (m >= K + ERR && Math.min(ERR, n - m) <= TOL) a++;
+    }
+    document.getElementById('cnt-b').textContent = b;
+    document.getElementById('cnt-a').textContent = a;
+    document.getElementById('try-n').textContent = 'n = ' + n.toLocaleString('en-US');
+    for (const id of ['ln-b', 'ln-a']) { const l = document.getElementById(id); l.setAttribute('x1', lx(n)); l.setAttribute('x2', lx(n)); }
+  }
+  document.addEventListener('keydown', e => {
+    if (!slide.classList.contains('active') || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === '1') { idx = Math.max(0, idx - 1); draw(); }
+    if (e.key === '2') { idx = Math.min(NS.length - 1, idx + 1); draw(); }
+  });
+  draw();
+})();
+</script>'''
+
 html = '''<!doctype html>
 <html lang="en">
 <head>
@@ -240,6 +310,7 @@ html = '''<!doctype html>
 ''' + '\n'.join(f'<!-- {i+1} -->{s}' for i, s in enumerate(slides)) + '''
 </div>
 <script src="../assets/deck.js"></script>
+''' + TRY_JS + '''
 </body>
 </html>
 '''

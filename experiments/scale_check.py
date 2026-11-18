@@ -8,7 +8,7 @@
 import itertools, os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import numpy as np
-from agora.scale import (broadcast_forms, agora_forms, robust_announce_agora,
+from agora.scale import (broadcast_forms, agora_forms, robust_announce_agora, robust_announce_filter,
                          robust_announce_broadcast, broadcast_window, groups)
 
 cases = mism = 0
@@ -21,11 +21,12 @@ for n in range(2, 8):
                     ini = 0
                     rb = robust_announce_broadcast(n, A, k, tol)
                     ra = robust_announce_agora(n, A, ini, k, tol, err)
+                    rf = robust_announce_filter(n, A, ini, k, tol, err)
                     cases += 1
-                    if rb != broadcast_forms(n, a, k, tol) or ra != agora_forms(n, a, k, tol, err):
+                    if rb != broadcast_forms(n, a, k, tol) or ra != agora_forms(n, a, k, tol, err) or rf != agora_forms(n, a, k, tol, err):
                         mism += 1
-                        print('MISMATCH', n, k, err, tol, a, rb, ra)
-print(f'Theorems 1-2 vs brute force: {cases} cases, {mism} mismatches')
+                        print('MISMATCH', n, k, err, tol, a, rb, ra, rf)
+print(f'Theorems 1-2 (and receiver-side filtering) vs brute force: {cases} cases, {mism} mismatches')
 
 # symmetry sanity check: a few non-initial sets give the same answer
 for n, k, err, tol, A, ini in [(6, 3, 1, 2, {1, 3, 4, 5}, 3), (7, 2, 2, 3, {0, 6}, 6), (6, 4, 0, 1, {0, 2, 3, 4, 5}, 2)]:

@@ -83,3 +83,19 @@ def robust_announce_agora(n, A, initiator, k, tol, err):
 def robust_announce_broadcast(n, A, k, tol):
     reached, both = run_broadcast(n, A)
     return reached >= k and both <= tol
+
+
+# ---------- variant: agents filter at the receiver ----------
+def robust_announce_filter(n, A, initiator, k, tol, err):
+    """Broadcast, but each member's agent shows the announcement to its member only
+    if it guesses the member accepts. Announce iff for every pattern of <= err wrong
+    guesses: forms and bothered <= tol."""
+    others = [i for i in range(n) if i != initiator]
+    for e in range(err + 1):
+        for wrong in itertools.combinations(others, e):
+            shown = [i for i in others if (i in A) != (i in wrong)]
+            reached = 1 + sum(i in A for i in shown)
+            both = sum(i not in A for i in shown)
+            if reached < k or both > tol:
+                return False
+    return True
