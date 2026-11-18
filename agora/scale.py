@@ -3,9 +3,10 @@
 Setting. A community N of n members; activity types t, each with an acceptance
 set A_t (a_t = |A_t| members accept t) and an initiator in A_t. The group of t
 forms if at least k members of A_t are reached (the initiator counts). A reached
-member outside A_t is bothered. The initiator gains B if the group forms and pays
-c per bothered member. It knows a_t (not who accepts) and announces t iff, in the
-worst case over what it does not know, the group forms and B >= c * bothered.
+member outside A_t is bothered. The initiator knows a_t (not who accepts) and
+announces t iff, in the worst case over what it does not know, the group forms and
+at most `tol` members are bothered (tol: the tolerance; gain B and cost c per
+bothered member give tol = B / c).
 
 Broadcast: an announcement reaches all n-1 others.
 Agora: each member's agent guesses whether its member accepts t; for each t, at
@@ -20,27 +21,27 @@ import numpy as np
 
 
 # ---------- closed forms (Theorems 1 and 2) ----------
-def broadcast_forms(n, a, k, B, c):
-    return a >= k and c * (n - a) <= B
+def broadcast_forms(n, a, k, tol):
+    return a >= k and n - a <= tol
 
 
-def agora_forms(n, a, k, B, c, err):
-    return a >= k + err and c * min(err, n - a) <= B
+def agora_forms(n, a, k, tol, err):
+    return a >= k + err and min(err, n - a) <= tol
 
 
-def groups(n, shares, k, B, c, err=None):
+def groups(n, shares, k, tol, err=None):
     """Groups formed in a community of n members where type t has floor(s_t n) acceptors."""
     tot = 0
     for s in shares:
         a = int(np.floor(s * n + 1e-9))
-        ok = broadcast_forms(n, a, k, B, c) if err is None else agora_forms(n, a, k, B, c, err)
+        ok = broadcast_forms(n, a, k, tol) if err is None else agora_forms(n, a, k, tol, err)
         tot += ok
     return tot
 
 
-def broadcast_window(s, k, B, c, nmax=10**6):
+def broadcast_window(s, k, tol, nmax=10**6):
     """Sizes n at which a type of share s forms under broadcast: an interval (or empty)."""
-    ns = [n for n in range(1, nmax) if broadcast_forms(n, int(np.floor(s * n + 1e-9)), k, B, c)]
+    ns = [n for n in range(1, nmax) if broadcast_forms(n, int(np.floor(s * n + 1e-9)), k, tol)]
     return (ns[0], ns[-1]) if ns else None
 
 
@@ -65,20 +66,20 @@ def run_agora(A, guess, order, k, initiator):
     return 1 + yes, bothered
 
 
-def robust_announce_agora(n, A, initiator, k, B, c, err):
+def robust_announce_agora(n, A, initiator, k, tol, err):
     """Announce iff for every guess pattern with <= err wrong guesses (initiator's own
-    agent is never wrong about it) and every invitation order: forms and B >= c*bothered."""
+    agent is never wrong about it) and every invitation order: forms and bothered <= tol."""
     others = [i for i in range(n) if i != initiator]
     for e in range(err + 1):
         for wrong in itertools.combinations(others, e):
             guess = {i for i in others if (i in A) != (i in wrong)}
             for order in itertools.permutations(sorted(guess)):
                 reached, both = run_agora(A, guess, order, k, initiator)
-                if reached < k or B < c * both:
+                if reached < k or both > tol:
                     return False
     return True
 
 
-def robust_announce_broadcast(n, A, k, B, c):
+def robust_announce_broadcast(n, A, k, tol):
     reached, both = run_broadcast(n, A)
-    return reached >= k and B >= c * both
+    return reached >= k and both <= tol

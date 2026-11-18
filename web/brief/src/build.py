@@ -92,13 +92,13 @@ def windows_vis(kind, rows=24, w=1000, nmax=1000):
                 thr_drawn = True
                 b += f'<line x1="{X0}" y1="{y-1}" x2="{X1}" y2="{y-1}" stroke="{OR}" stroke-width="3" stroke-dasharray="10 8"/>'
                 b += text(X0 + 10, y + 30, 'below the line:', 24, OR, 'start', 700)
-                b += text(X0 + 10, y + 58, 'never forms', 24, OR, 'start', 700)
+                b += text(X0 + 10, y + 58, 'never happens', 24, OR, 'start', 700)
         else:
             x0 = lx(int(r['agora10_from']))
             b += f'<rect x="{x0:.0f}" y="{y+3}" width="{X1-x0:.0f}" height="{rh-6}" rx="4" fill="{OR}"/>'
     b += text(X0 - 14, top + 14, 'share 0.5', 22, GR, 'end')
     b += text(X0 - 14, top + (rows - 1) * rh + 14, f'0.5/{rows}', 22, GR, 'end')
-    b += text(40, top + rows * rh / 2, 'types', 26, GR, weight=700, extra=f'transform="rotate(-90 40 {top + rows*rh/2})"')
+    b += text(40, top + rows * rh / 2, 'activities', 26, GR, weight=700, extra=f'transform="rotate(-90 40 {top + rows*rh/2})"')
     b += _xaxis(X0, X1, Y0, nmax=nmax)
     return svg(w, Y0 + 92, b)
 
@@ -112,7 +112,7 @@ def counts_vis(w=1000, h=640):
         b += f'<line x1="{X0}" y1="{Y(v):.0f}" x2="{X1}" y2="{Y(v):.0f}" stroke="#E6E5E0" stroke-width="2"/>'
         b += text(X0 - 14, Y(v) + 9, str(v), 24, GR, 'end')
     b += _xaxis(X0, X1, Y0)
-    b += text(30, (Y0 + Y1) / 2, 'groups formed', 26, GR, weight=700, extra=f'transform="rotate(-90 30 {(Y0+Y1)/2})"')
+    b += text(30, (Y0 + Y1) / 2, 'activities that happen', 26, GR, weight=700, extra=f'transform="rotate(-90 30 {(Y0+Y1)/2})"')
     for key, col, lab in (('agora_err0', OR, 'agora, err = 0'), ('agora_err10', '#E8B07A', 'agora, err = 10'), ('broadcast', DK, 'broadcast')):
         pts = [(_lx(int(r['n']), X0, X1), Y(float(r[key]))) for r in RUNS]
         b += f'<polyline fill="none" stroke="{col}" stroke-width="5" stroke-linejoin="round" points="' + ' '.join(f'{x:.1f},{y:.1f}' for x, y in pts) + '"/>'
@@ -155,7 +155,7 @@ TITLE = f'''<section class="slide dark center">
 
 slides = [TITLE]
 S = slides.append
-n, k, B, c, err = I('n'), I('k'), I('B'), I('c'), I(r'\mathit{err}')
+n, k, err, tol = I('n'), I('k'), I(r'\mathit{err}'), I(r'\mathit{tol}')
 
 S(f"""<section class="slide light">
   <p class="eyebrow">Motivation</p>
@@ -164,38 +164,40 @@ S(f"""<section class="slide light">
   {evidence()}
 </section>""")
 
-S(thm('Model', f'Initiatives that need {k} members',
-      f"""<p>{n} members. For each type {M('t')}, {M('a_t')} members accept it (the set {M('A_t')}); one is its <b>initiator</b>.</p>
-<p>The group forms if at least {k} members of {M('A_t')} are reached; a reached non-member of {M('A_t')} is <b>bothered</b>.</p>
-<p>Gain {B} if it forms; cost {c} per bothered. Knowing {M('a_t')}, the initiator announces iff, in the worst case, it forms and {M(r'B \ge c \cdot \text{bothered}')}.</p>""",
-      f'<b>Welfare:</b> groups formed. The cost {c} is social: fear of spamming.',
+S(thm('Model', f'An activity needs {k} people',
+      f"""<p>A community of {n} members. Each activity interests some of them, and happens only if at least {k} interested members hear of it.</p>
+<p>Hearing of an activity you are not interested in <b>bothers</b> you.</p>
+<p>The initiator knows how many are interested, not who. It posts only if, in the worst case, the activity happens and at most {tol} members are bothered.</p>""",
+      f'<b>Welfare:</b> number of activities that happen. {tol}: the tolerance.',
       kit.card_vis(), wide=True))
 
-S(thm('Model', 'Two channels, and a growing community',
-      f"""<p><b>Broadcast:</b> an announcement reaches all other {M('n-1')} members.</p>
-<p><b>Agora:</b> agents guess whether their members accept {M('t')}; at most {err} guesses per type are wrong. The initiator's agent invites members guessed to accept, in any order, until {M('k-1')} accept.</p>
-<p><b>Growing community:</b> type {M('t')} has a share {M('s_t')}; with {n} members, {M(r'a_t = \lfloor s_t n \rfloor')}.</p>""",
-      'Orange: accepts. In the agora, two guesses are wrong.',
-      channel_vis(), stack=True, pic_h=210))
+S(thm('Model', 'Two ways to post',
+      f"""<p><b>Broadcast:</b> everyone hears.</p>
+<p><b>Agora:</b> each agent guesses whether its member is interested; per activity, at most {err} guesses are wrong. Agents tell the members guessed interested, one by one, until {M('k-1')} say yes.</p>
+<p><b>Growing community:</b> each activity interests a fixed share {M('s')} of the members.</p>""",
+      'Orange: interested. In the agora, two guesses are wrong.',
+      channel_vis(), stack=True, pic_h=230))
 
-S(thm('Theorem 1', 'Broadcast: each type forms only in a window',
-      f"""<p>In broadcast, type {M('t')} forms iff {M(r'a_t \ge k')} and {M(r'n - a_t \le \tfrac{B}{c}')}.</p>
-<p>So a type with share {M('s')} forms only for {n} in an interval inside {M(r'\big[\tfrac{k}{s}, \tfrac{B}{c(1-s)}\big]')}.</p>
-<p>If {M(r's < \tfrac{k}{k+B/c}')}, it never forms.</p>""",
-      f"<p>It bothers exactly {M(r'n - a_t')} members; both conditions are monotone.</p>",
+S(thm('Theorem 1', 'Broadcast: each activity has a window of sizes',
+      f"""<p>In broadcast, an activity happens iff at least {k} members are interested and at most {tol} are not.</p>
+<p>With share {M('s')}, it happens only for</p>
+<p class="eq">{M(r'\tfrac{k}{s} \ \le\ n \ \le\ \tfrac{\mathit{tol}}{1-s}')}</p>
+<p>and never if {M(r's < \tfrac{k}{k+\mathit{tol}}')}.</p>""",
+      f"<p>All uninterested are bothered. E.g., share 10%, {M('k=4')}, {M(r'\mathit{tol}=50')}: {M('n')} from 40 to 55.</p>",
       windows_vis('broadcast')))
 
-S(thm('Theorem 2', f'Agora: once a type forms, it keeps forming',
-      f"""<p>In the agora, type {M('t')} forms iff {M(r'a_t \ge k + \mathit{err}')} and {M(r'c \cdot \min(\mathit{err},\, n - a_t) \le B')}.</p>
-<p>So if {M(r'\mathit{err} \le \tfrac{B}{c}')}, a type with share {M('s')} forms for every {M(r'n \ge \tfrac{k+\mathit{err}}{s}')}.</p>""",
-      f"<p>Always {M('k-1')} acceptors invited, at most {err} members bothered; both bounds tight.</p>",
+S(thm('Theorem 2', 'Agora: once an activity can happen, it always can',
+      f"""<p>In the agora, if {M(r'\mathit{err} \le \mathit{tol}')}, an activity happens iff at least {M(r'k+\mathit{err}')} members are interested.</p>
+<p>With share {M('s')}, it happens for every</p>
+<p class="eq">{M(r'n \ \ge\ \tfrac{k+\mathit{err}}{s}')}</p>""",
+      f"<p>Only wrongly guessed members are bothered: at most {err}, for every {n}. Same example, {M(r'\mathit{err}=0')}: every {M(r'n \ge 40')}.</p>",
       windows_vis('agora')))
 
 S(thm('Example', 'Broadcast peaks and dies; the agora grows',
-      f"""<p>300 types with shares {M(r's_t = \tfrac{0.5}{t}')}, and {M('k=4')}, {M(r'\tfrac{B}{c} = 150')}.</p>
-<p><b>Broadcast:</b> 19 types ever form; at most 19 groups (152–154 members); none above 300.</p>
-<p><b>Agora:</b> all 300 from 2,400 members; with {M(r'\mathit{err} = 10')}, from 8,400.</p>""",
-      '<p>Exact counts. Theorems checked by brute force: 1,215 small cases.</p>',
+      f"""<p>300 activities; activity {M('t')} has share {M(r'\tfrac{0.5}{t}')}. Also {M('k=4')}, {M(r'\mathit{tol}=150')}.</p>
+<p><b>Broadcast:</b> 19 activities ever happen, at most 19 at once (152–154 members), none above 300 members.</p>
+<p><b>Agora:</b> all 300 from 2,400 members; with {M(r'\mathit{err}=10')}, from 8,400.</p>""",
+      '<p>Exact counts. Both theorems checked by brute force: 1,215 small cases.</p>',
       counts_vis()))
 
 S(f'''<section class="slide light">
@@ -209,8 +211,8 @@ S('''<section class="slide light">
   <p class="eyebrow">Summary</p>
   <h2>Broadcast cost grows with \\(n\\); agora cost does not</h2>
   <div class="rows ruled">
-    <div class="row"><span class="n">1</span><p>Broadcast: each type forms only in a window of sizes; niche types never</p></div>
-    <div class="row"><span class="n">2</span><p>Agora: once a type forms, it keeps forming; wrong guesses only delay it</p></div>
+    <div class="row"><span class="n">1</span><p>Broadcast: each activity happens only in a window of sizes; niche ones never</p></div>
+    <div class="row"><span class="n">2</span><p>Agora: once an activity can happen, it always can; wrong guesses only delay it</p></div>
     <div class="row"><span class="n">3</span><p>Open: initiators and members as players (post, mute); invitation budgets</p></div>
     <div class="row"><span class="n">4</span><p>Next: federation — try locally, escalate only when needed</p></div>
   </div>

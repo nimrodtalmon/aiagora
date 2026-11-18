@@ -8,6 +8,7 @@
 \newtheorem{definition}{Definition}
 \newtheorem{remark}{Remark}
 \newcommand{\err}{\mathit{err}}
+\newcommand{\tol}{\mathit{tol}}
 \title{The Scale Paradox: Model and Results}
 \author{Nimrod Talmon\\ Ben-Gurion University}
 \date{Draft, November 18, 2026}
@@ -22,7 +23,7 @@ A community has $n$~members. For each activity type~$t$, a set $A_t$ of $a_t$~me
 \end{definition}
 
 \begin{definition}[Announcement]
-The initiator of~$t$ gains $B>0$ if the group forms, and pays $c>0$ for each bothered member. It knows $a_t$ but not who is in $A_t$. It announces~$t$ if and only if, in every case consistent with what it knows, the group forms and $B \ge c \cdot (\text{number bothered})$.
+Each initiator has a \emph{tolerance} $\tol \ge 0$: the number of members it is willing to bother. It knows $a_t$ but not who is in $A_t$. It announces~$t$ if and only if, in every case consistent with what it knows, the group forms and at most $\tol$ members are bothered.
 \end{definition}
 
 \begin{definition}[Channels]
@@ -39,12 +40,12 @@ Type~$t$ has a \emph{share} $s_t \in (0,1)$: a community of $n$~members has $a_t
 \end{definition}
 
 \begin{remark}
-The cost~$c$ is social: people avoid posts that would bother a large audience. The worst-case rule makes the decision depend only on $n$, $a_t$, $k$, $B/c$ and $\err$.
+The tolerance models the social cost of posting: people avoid posts that would bother a large audience. If the initiator gains $B$ when the group forms and pays $c$ per bothered member, then $\tol = B/c$. The worst-case rule makes the decision depend only on $n$, $a_t$, $k$, $\tol$ and $\err$.
 \end{remark}
 
 \section{Broadcast}
 \begin{theorem}\label{thm:broadcast}
-In broadcast, type~$t$ forms if and only if $a_t \ge k$ and $c\,(n-a_t) \le B$.
+In broadcast, type~$t$ forms if and only if $a_t \ge k$ and $n-a_t \le \tol$.
 \end{theorem}
 \begin{proof}
 A broadcast reaches all $n$~members, so the group forms if and only if $a_t \ge k$, and exactly $n-a_t$ members are bothered. Nothing is unknown, so the initiator announces, and the group forms, if and only if both conditions hold.
@@ -53,34 +54,34 @@ A broadcast reaches all $n$~members, so the group forms if and only if $a_t \ge 
 \begin{corollary}\label{cor:broadcast}
 In a growing community, consider a type with share~$s$.
 \begin{enumerate}
-\item If $s < \frac{k}{k + B/c}$, then the type never forms, for any~$n$.
-\item The sizes~$n$ at which the type forms form an interval contained in $\big[\frac{k}{s}, \frac{B}{c(1-s)}\big]$.
+\item If $s < \frac{k}{k + \tol}$, then the type never forms, for any~$n$.
+\item The sizes~$n$ at which the type forms form an interval contained in $\big[\frac{k}{s}, \frac{\tol}{1-s}\big]$.
 \end{enumerate}
-Hence no group forms once $n > \frac{B}{c(1-s_{\max})}$, where $s_{\max}$ is the largest share.
+Hence no group forms once $n > \frac{\tol}{1-s_{\max}}$, where $s_{\max}$ is the largest share.
 \end{corollary}
 \begin{proof}
-By Theorem~\ref{thm:broadcast}, the type forms at~$n$ if and only if $\lfloor sn \rfloor \ge k$ and $n - \lfloor sn \rfloor \le B/c$. Both conditions are monotone in~$n$: $\lfloor sn \rfloor$ is nondecreasing, and so is $n - \lfloor sn \rfloor$, since $\lfloor s(n+1) \rfloor \le \lfloor sn \rfloor + 1$. Hence the sizes form an interval. The first condition gives $sn \ge k$, so $n \ge k/s$; the second gives $(1-s)n \le n - \lfloor sn \rfloor \le B/c$, so $n \le \frac{B}{c(1-s)}$. If $s < \frac{k}{k+B/c}$, then $\frac{k}{s} > \frac{B}{c(1-s)}$, so the interval is empty.
+By Theorem~\ref{thm:broadcast}, the type forms at~$n$ if and only if $\lfloor sn \rfloor \ge k$ and $n - \lfloor sn \rfloor \le \tol$. Both conditions are monotone in~$n$: $\lfloor sn \rfloor$ is nondecreasing, and so is $n - \lfloor sn \rfloor$, since $\lfloor s(n+1) \rfloor \le \lfloor sn \rfloor + 1$. Hence the sizes form an interval. The first condition gives $sn \ge k$, so $n \ge k/s$; the second gives $(1-s)n \le n - \lfloor sn \rfloor \le \tol$, so $n \le \frac{\tol}{1-s}$. If $s < \frac{k}{k+\tol}$, then $\frac{k}{s} > \frac{\tol}{1-s}$, so the interval is empty.
 \end{proof}
 
-So, under broadcast, each type forms only in a window of community sizes; niche types, with share below $\frac{k}{k+B/c}$, never form; and in a large enough community, no group forms at all.
+So, under broadcast, each type forms only in a window of community sizes; niche types, with share below $\frac{k}{k+\tol}$, never form; and in a large enough community, no group forms at all.
 
 \section{Agora}
 \begin{theorem}\label{thm:agora}
-In the agora, type~$t$ forms if and only if $a_t \ge k + \err$ and $c \cdot \min(\err, n-a_t) \le B$.
+In the agora, type~$t$ forms if and only if $a_t \ge k + \err$ and $\min(\err, n-a_t) \le \tol$.
 \end{theorem}
 \begin{proof}
-Suppose both conditions hold, and fix any set of at most $\err$ wrong guesses and any order. Of the $a_t-1$ other members of $A_t$, at most $\err$ are guessed not to accept, so at least $a_t-1-\err \ge k-1$ of them are invited, unless $k-1$ invited members accepted earlier. Either way, $k-1$ invited members accept, and the group forms. The bothered members are invited members outside $A_t$, so they were guessed wrongly: there are at most $\err$ of them, and at most $n-a_t$. Hence $B \ge c \cdot (\text{number bothered})$, and the initiator announces.
+Suppose both conditions hold, and fix any set of at most $\err$ wrong guesses and any order. Of the $a_t-1$ other members of $A_t$, at most $\err$ are guessed not to accept, so at least $a_t-1-\err \ge k-1$ of them are invited, unless $k-1$ invited members accepted earlier. Either way, $k-1$ invited members accept, and the group forms. The bothered members are invited members outside $A_t$, so they were guessed wrongly: there are at most $\err$ of them, and at most $n-a_t$. Hence at most $\tol$ members are bothered, and the initiator announces.
 
 Suppose $a_t < k + \err$. Let $\min(\err, a_t-1)$ members of $A_t$ other than the initiator be guessed not to accept. Then at most $\max(0, a_t-1-\err) < k-1$ others are invited and accept, so the group does not form, and the initiator does not announce.
 
-Suppose $c \cdot \min(\err, n-a_t) > B$ and $a_t \ge k+\err$. Let $\min(\err, n-a_t)$ members outside $A_t$ be guessed to accept, all other guesses be right, and the order invite them first. All of them are invited before the $(k-1)$-st acceptance, so they are all bothered, and $B < c \cdot (\text{number bothered})$. So the initiator does not announce.
+Suppose $\min(\err, n-a_t) > \tol$ and $a_t \ge k+\err$. Let $\min(\err, n-a_t)$ members outside $A_t$ be guessed to accept, all other guesses be right, and the order invite them first. All of them are invited before the $(k-1)$-st acceptance, so they are all bothered, which is more than $\tol$. So the initiator does not announce.
 \end{proof}
 
 \begin{corollary}\label{cor:agora}
-If $\err \le B/c$, then in the agora type~$t$ forms if and only if $a_t \ge k+\err$. In a growing community, a type with share~$s$ forms for every $n \ge \frac{k+\err}{s}$; so the number of groups formed is nondecreasing in~$n$, and every type eventually forms.
+If $\err \le \tol$, then in the agora type~$t$ forms if and only if $a_t \ge k+\err$. In a growing community, a type with share~$s$ forms for every $n \ge \frac{k+\err}{s}$; so the number of groups formed is nondecreasing in~$n$, and every type eventually forms.
 \end{corollary}
 \begin{proof}
-If $\err \le B/c$, then $c \cdot \min(\err, n-a_t) \le c \cdot \err \le B$, so Theorem~\ref{thm:agora} leaves only $a_t \ge k+\err$. Since $k+\err$ is an integer, $\lfloor sn \rfloor \ge k+\err$ if and only if $n \ge \frac{k+\err}{s}$.
+If $\err \le \tol$, then $\min(\err, n-a_t) \le \err \le \tol$, so Theorem~\ref{thm:agora} leaves only $a_t \ge k+\err$. Since $k+\err$ is an integer, $\lfloor sn \rfloor \ge k+\err$ if and only if $n \ge \frac{k+\err}{s}$.
 \end{proof}
 
 \begin{remark}
@@ -92,8 +93,10 @@ A random version, where each member accepts~$t$ independently with probability~$
 \end{remark}
 
 \section{Example}
-Take $300$~types with shares $s_t = 0.5/t$, $k=4$ and $B/c=150$. Under broadcast, only the $19$~types with share at least $\frac{4}{154}$ ever form; the number of groups peaks at $19$, for $n$ from $152$ to $154$, and is zero for every $n>300$. In the agora with $\err = 0$, every type with $a_t \ge 4$ forms, and all $300$~types form from $n=2400$ on; with $\err = 10$, the number of groups is nondecreasing, smaller than under broadcast for small~$n$, and reaches all $300$~types from $n = 8400$ on.
+For one activity: with share $10\%$, $k=4$ and $\tol=50$, broadcast forms the group exactly for $n$ from $40$ to $55$, and the agora with $\err=0$ for every $n \ge 40$.
 
-All statements were also checked by brute force: for every community of up to $7$~members, every $k \in \{2,3,4\}$, $\err \in \{0,1,2\}$ and $B/c \in \{0.5,1,2,3,5\}$, enumerating every pattern of wrong guesses and every order ($1{,}215$ cases, no mismatch), and the corollaries on $400$~shares.
+Take $300$~types with shares $s_t = 0.5/t$, $k=4$ and $\tol=150$. Under broadcast, only the $19$~types with share at least $\frac{4}{154}$ ever form; the number of groups peaks at $19$, for $n$ from $152$ to $154$, and is zero for every $n>300$. In the agora with $\err = 0$, every type with $a_t \ge 4$ forms, and all $300$~types form from $n=2400$ on; with $\err = 10$, the number of groups is nondecreasing, smaller than under broadcast for small~$n$, and reaches all $300$~types from $n = 8400$ on.
+
+All statements were also checked by brute force: for every community of up to $7$~members, every $k \in \{2,3,4\}$, $\err \in \{0,1,2\}$ and $\tol \in \{0,1,2,3,5\}$, enumerating every pattern of wrong guesses and every order ($1{,}215$ cases, no mismatch), and the corollaries on $400$~shares.
 
 \end{document}
