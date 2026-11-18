@@ -122,7 +122,7 @@ def since_vis():
 
 def related_vis():
     boxes = [('Asking voters little', 'Halpern et al. 2023 · Lu &amp; Boutilier 2011', 'outcome judged on everyone, not only who said yes'),
-             ('Few bits per voter', 'Mandal et al. 2019, 2020 · Kempe', 'one-shot; same "options ÷ budget" shape as alone'),
+             ('Few bits per voter', 'Mandal et al. 2019, 2020 · Kempe', 'one-shot; same "options ÷ budget" shape as silos'),
              ('Bandits, adaptivity', 'Gupta–Nagarajan–Singla · Colton 1963', 'independent tastes: adaptivity gains only log'),
              ('Agents for people', 'Habermolt 2026 · CalBench 2026', 'no question budget, no comparison to the best')]
     return '<div class="rw">' + ''.join(
