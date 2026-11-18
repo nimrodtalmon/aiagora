@@ -19,5 +19,6 @@ A simulation framework (later also a live web app) for AI-Agora. Not related to 
 - Python 3, numpy/scipy/matplotlib only for now; no build step for any future web UI (the talmonlab server has no Node).
 - Web app: `web/server.py` (standard library, static pages only: the deck at / and `web/play.html` at /play), live at https://talmonlab.bgu.ac.il/agora/ on port 5401 (entry in the talmonlab repo's server/apps.json; the server pulls this repo every 5 minutes). Links in the page must stay relative.
 - The explainer at /agora/ is a deck built by `web/deck/src/build.py` (never hand-edit `web/deck/index.html`); it uses the zutot deck engine copied to `web/deck/assets/` (arrows change slides, 1/2 drive demos, Esc goes home, no notes key). Its demos replay real runs of `agora/pick_one.py`.
+- Research briefs: `web/brief/` (current results, at /brief/) and `web/directions/` (at /directions/), both built from `src/build.py` with the shared kit `web/kit.py`.
 - `paper/` holds the paper seed (LaTeX); rebuild the figure with `experiments/pick_one_plot.py`.
 - `runs/` holds outputs; only small headline results are committed.

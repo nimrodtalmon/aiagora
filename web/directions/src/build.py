@@ -1,17 +1,16 @@
 #!/usr/bin/env python3
 """Builds web/directions/index.html: research directions for AI-Agora, as a
 research brief (conference-style slides). Content from the report
-reports/Agora directions and apps.md. Reuses the brief deck's helpers.
+reports/Agora directions and apps.md. Uses the shared brief kit (web/kit.py).
 
     python3 web/directions/src/build.py
 """
 import importlib.util, os
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-BRIEF = os.path.join(HERE, '..', '..', 'brief', 'src', 'build.py')
-spec = importlib.util.spec_from_file_location('briefbuild', BRIEF)
+spec = importlib.util.spec_from_file_location('kit', os.path.join(HERE, '..', '..', 'kit.py'))
 B = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(B)                       # also rebuilds the brief (harmless)
+spec.loader.exec_module(B)
 svg, text, head, bot, thm, M = B.svg, B.text, B.head, B.bot, B.thm, B.M
 OR, DK, GR, GL, CARD = B.OR, B.DK, B.GR, B.GL, B.CARD
 OUT = os.path.join(HERE, '..', 'index.html')
@@ -28,17 +27,7 @@ def rows(items, dark=False):
         f'<div class="row"><span class="n">{k}</span><p>{t}</p></div>' for k, t in items) + '</div>'
 
 
-def card_vis(title='Sunday 8am run', need=5, have=3, w=760):
-    h = 520
-    b = f'<rect x="20" y="20" width="{w-40}" height="{h-40}" rx="36" fill="{CARD}" stroke="{GL}" stroke-width="4"/>'
-    b += text(w / 2, 110, title, 50, DK, weight=800)
-    b += text(w / 2, 170, f'forms at {need} · no one is in before that', 30, GR)
-    for k in range(need):
-        x = w / 2 + (k - (need - 1) / 2) * 110
-        b += head(x, 250, 30, DK if k < have else GL)
-    b += f'<rect x="{w/2-200}" y="{h-150}" width="400" height="84" rx="42" fill="{OR}"/>'
-    b += text(w / 2, h - 95, f'we need {need-have} more', 40, DK, weight=800)
-    return svg(w, h, b)
+card_vis = B.card_vis
 
 
 def map_vis():
