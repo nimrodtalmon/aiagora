@@ -174,6 +174,37 @@ TRY = f'''<section class="slide light tryit">
   </div>
 </section>'''
 
+GAME = list(csv.DictReader(open(os.path.join(ROOT, 'runs', 'scale_game.csv'))))
+
+
+def game_vis(w=1000, h=640):
+    """Share of possible activities that happen in the best equilibrium, vs n."""
+    X0, X1, Y0, Y1 = 120, w - 190, 540, 50
+    lo, hi = 20, 4000
+    lx = lambda n: X0 + (math.log(n) - math.log(lo)) / (math.log(hi) - math.log(lo)) * (X1 - X0)
+    Y = lambda v: Y0 - v * (Y0 - Y1)
+    b = ''
+    for v in (0, .5, 1):
+        b += f'<line x1="{X0}" y1="{Y(v):.0f}" x2="{X1}" y2="{Y(v):.0f}" stroke="#E6E5E0" stroke-width="2"/>'
+        b += text(X0 - 14, Y(v) + 9, f'{v:g}', 24, GR, 'end')
+    for n in (20, 100, 400, 1000, 4000):
+        b += text(lx(n), Y0 + 38, f'{n:,}', 24, GR)
+    b += text((X0 + X1) / 2, Y0 + 80, 'community size n (members)', 28, GR, weight=700)
+    b += text(30, (Y0 + Y1) / 2, 'share of possible activities', 26, GR, weight=700, extra=f'transform="rotate(-90 30 {(Y0+Y1)/2})"')
+    rows = [r for r in GAME if float(r['viable']) >= 1]
+    for key, col, lab in (('agora_q0.01', OR, 'agora, q = 0.01'), ('agora_q0.1', '#E8B07A', 'agora, q = 0.1'), ('broadcast', DK, 'broadcast')):
+        pts = [(lx(int(r['n'])), Y(float(r[key]) / float(r['viable']))) for r in rows]
+        b += f'<polyline fill="none" stroke="{col}" stroke-width="5" stroke-linejoin="round" points="' + ' '.join(f'{x:.1f},{y:.1f}' for x, y in pts) + '"/>'
+        x, y = pts[-1]
+        if key == 'broadcast':
+            b += text(lx(60), Y(0.75), lab, 26, DK, 'middle', 700)
+        elif key == 'agora_q0.1':
+            b += text(lx(900), Y(0.5), lab, 26, DK, 'end', 700)
+        else:
+            b += text(x + 14, y + 9, lab, 26, DK, 'start', 700)
+    return svg(w, h, b)
+
+
 # ---------- slides ----------
 TITLE = f'''<section class="slide dark center">
   <p class="eyebrow">AI-Agora</p>
@@ -184,7 +215,7 @@ TITLE = f'''<section class="slide dark center">
 
 slides = [TITLE]
 S = slides.append
-n, k, err, tol = I('n'), I('k'), I(r'\mathit{err}'), I(r'\mathit{tol}')
+n, k, err, tol, c = I('n'), I('k'), I(r'\mathit{err}'), I(r'\mathit{tol}'), I('c')
 
 S(f"""<section class="slide light">
   <p class="eyebrow">Motivation</p>
@@ -242,6 +273,38 @@ S(thm('Example', 'Broadcast peaks and dies; the agora grows',
       '<p>Exact counts. Both theorems checked by brute force: 1,215 small cases.</p>',
       counts_vis()))
 
+S(f"""<section class="slide light">
+  <p class="eyebrow">Strategic members</p>
+  <h2>Members may mute; posting is free</h2>
+  <div class="box" style="margin-top:20px">
+<p>Each member initiates {M('r')} activities on average ({M('rn')} in all) and posts them all: posting costs nothing.</p>
+<p>Each member <b>listens</b> or <b>mutes</b>. A listener sees the posts it wants, plus {M('Q')} it does not want: broadcast shows all of these; an agora wrongly shows a share {M('q')}.</p>
+<p><b>Payoff:</b> its own activities, plus others' activities it joins (at most {M('b')}), minus {c} per unwanted post seen.</p>
+  </div>
+  <p class="why">Equilibrium: no member gains by switching. We take the best one, which every member prefers.</p>
+</section>""")
+
+S(f"""<section class="slide light">
+  <p class="eyebrow">Theorem 3</p>
+  <h2>All or nothing</h2>
+  <div class="box" style="margin-top:20px">
+<p>Let every activity interest {M('a')} members, and every member want {M('d')} activities of others and be shown {M('Q')} unwanted posts.</p>
+<p>Then everyone listens and every activity happens iff</p>
+<p class="eq">{M(r'a \ \ge\ k \quad\text{and}\quad \min(b, d) \ \ge\ c \cdot Q')}</p>
+<p>Otherwise, no activity happens in any equilibrium.</p>
+  </div>
+  <div class="why"><p>Listening gains at most {M('b')} and costs {M(r'c \cdot Q')}; the gain exists only if others listen too.</p>
+<p>So a member bears at most {M(r'\tfrac{{b}}{{c}}')} unwanted posts: the tolerance of the first model.</p></div>
+</section>""")
+
+S(thm('Simulation', 'Agents push the limit out by a factor ' + M(r'1/q'),
+      f"""<p>Broadcast shows {M(r'(1-s)\,rn')} unwanted posts, so it dies once</p>
+<p class="eq">{M(r'n \ >\ \tfrac{b}{c(1-s)r}')}</p>
+<p>An agora dies only {M(r'\tfrac{1}{q}')} times later.</p>
+<p>Random communities: {M('k=4')}, {M('b=3')}, {M('c=0.05')}, {M('r=0.5')}.</p>""",
+      '<p>Best equilibrium, from "all listen" by best responses; 40 communities per size.</p>',
+      game_vis()))
+
 S(f'''<section class="slide light">
   <p class="eyebrow">Related work</p>
   <h2>Closest work, and the difference</h2>
@@ -255,7 +318,7 @@ S('''<section class="slide light">
   <div class="rows ruled">
     <div class="row"><span class="n">1</span><p>Broadcast: each activity happens only in a window of sizes; niche ones never</p></div>
     <div class="row"><span class="n">2</span><p>Agora: once an activity can happen, it always can; wrong guesses only delay it</p></div>
-    <div class="row"><span class="n">3</span><p>Open: initiators and members as players (post, mute); invitation budgets</p></div>
+    <div class="row"><span class="n">3</span><p>Muting: broadcast dies past a size; agents multiply that size by \\(1/q\\)</p></div>
     <div class="row"><span class="n">4</span><p>Next: federation — try locally, escalate only when needed</p></div>
   </div>
 </section>''')

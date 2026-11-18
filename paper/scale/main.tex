@@ -18,7 +18,7 @@
 \maketitle
 
 \begin{abstract}
-A family that moves to a new neighborhood looks for people to share activities with: a running group, a book club, a chess evening. Today this happens in one shared group chat, where every post reaches everyone. We model a community in which an activity happens only if enough interested members hear of it, and in which an initiator posts only if the post bothers few uninterested members. We show that with a shared channel, each activity happens only for community sizes within a window, niche activities never happen, and a large enough community forms no group at all. If instead each member has a personal agent that guesses its member's interests and only the members guessed interested are told, then the number of members bothered does not grow with the community, and once an activity can happen it keeps happening as the community grows.
+A family that moves to a new neighborhood looks for people to share activities with: a running group, a book club, a chess evening. Today this happens in one shared group chat, where every post reaches everyone. We model a community in which an activity happens only if enough interested members hear of it, and in which an initiator posts only if the post bothers few uninterested members. We show that with a shared channel, each activity happens only for community sizes within a window, niche activities never happen, and a large enough community forms no group at all. If instead each member has a personal agent that guesses its member's interests and only the members guessed interested are told, then the number of members bothered does not grow with the community, and once an activity can happen it keeps happening as the community grows. When members may instead mute the channel, the outcome is all or nothing: a shared channel dies beyond a certain community size, and agents that wrongly show a member a given share of the posts it does not want push that size out by the inverse of that share.
 \end{abstract}
 
 \section{Introduction}
@@ -29,6 +29,8 @@ This creates a tension for activities that need a minimum number of participants
 Personal AI agents offer a different channel. If each member's agent knows, roughly, what its member would like to join, then an initiator's agent can tell only the members whose agents guess they are interested. We call this the \emph{agora}. The members bothered are then only those whose agents guessed wrong.
 
 We study this tension in a simple model and show two results. Under broadcast, an activity happens if and only if enough members are interested and few enough are not; hence each activity happens only for community sizes in a window, activities below a share threshold never happen, and a large enough community forms no group (Theorem~\ref{thm:broadcast} and Corollary~\ref{cor:broadcast}). In the agora, an activity happens if and only if enough members are interested, with a margin that covers the agents' errors; hence once an activity can happen, it keeps happening as the community grows (Theorem~\ref{thm:agora} and Corollary~\ref{cor:agora}). The same holds if agents filter at the receiving end, showing each member only what its agent guesses is relevant (Proposition~\ref{prop:filter}).
+
+The tolerance of an initiator is a modeling choice. We also study a version in which posting is free and members decide whether to listen or to mute. There, every member stays only if the activities it can join outweigh the unwanted posts it sees; the outcome is all or nothing (Theorem~\ref{thm:game}), so a shared channel dies beyond a community size, and an agora that wrongly shows a member a share~$q$ of the posts it does not want pushes that size out by a factor~$1/q$ (Corollary~\ref{cor:game}).
 
 \section{Model}
 We first define the setting and the objective, then the two channels, and then how a community grows.
@@ -136,6 +138,56 @@ Figure~\ref{fig:example} takes $300$~activities with shares $s_t = 0.5/t$, $k=4$
 
 All statements were also checked by brute force: for every community of up to $7$~members, every $k \in \{2,3,4\}$, $\err \in \{0,1,2\}$ and $\tol \in \{0,1,2,3,5\}$, over every set of wrong guesses and every order, the posting decisions in broadcast, in the agora, and with receiver-side filtering agree with Theorems~\ref{thm:broadcast} and~\ref{thm:agora} and Proposition~\ref{prop:filter} ($1{,}215$ cases); and Corollary~\ref{cor:broadcast} on $400$~shares.
 
+
+\section{Strategic Members}
+So far, initiators held back posts that would bother too many members. We now let posting be free, and let each member decide whether to listen to the channel or to mute it.
+
+\begin{definition}[Listening game]
+There are $n$~members and a set of activities; each activity has an initiator, who is interested in it, and every activity is posted. Each member~$i$ is shown every activity it is interested in, and a set $F_i$ of activities it is not interested in: in broadcast, all of them; in the agora, those its agent wrongly guesses relevant. Each member chooses to \emph{listen} or to \emph{mute}. An activity happens if at least $k \ge 2$ interested members take part: its initiator, and every interested member who listens. The payoff of member~$i$ is the number of its own activities that happen, plus the number of other members' activities that happen and in which~$i$ takes part, capped at $b \ge 1$, minus $c > 0$ times $|F_i|$ if $i$ listens.
+\end{definition}
+
+\begin{remark}
+The cap~$b$ is the number of other members' activities a member can join. A muted member still runs its own activities, so listening matters only for joining those of others.
+\end{remark}
+
+\begin{proposition}\label{prop:best}
+The listening game has an equilibrium in which every member who listens in some equilibrium listens, and every member weakly prefers it to every other equilibrium. It is reached by starting from everyone listening and letting all members repeatedly play best responses.
+\end{proposition}
+\begin{proof}
+The gain of member~$i$ from listening is $\min(b, J_i) - c\,|F_i|$, where $J_i$ is the number of other members' activities that $i$ is interested in and that happen when $i$ listens. When more other members listen, more activities happen, so $J_i$ is nondecreasing in the others' choices, while $c\,|F_i|$ does not depend on them. So the game has increasing differences, and best responses from everyone listening decrease to the largest equilibrium~$L^*$, which is above every equilibrium. Each payoff is nondecreasing in the others' choices, so for every equilibrium~$L$ and member~$i$, the payoff of~$i$ under~$L$ is at most its payoff when it plays as in~$L$ and the others play as in~$L^*$, which is at most its payoff under~$L^*$, since its choice in~$L^*$ is a best response.
+\end{proof}
+
+We call this equilibrium the \emph{best equilibrium}. For communities in which all members are alike, it is all or nothing.
+
+\begin{theorem}\label{thm:game}
+Suppose that every activity interests $a$~members, and that every member is interested in $d$~activities of other members and is shown $Q$~activities it is not interested in. Then in the best equilibrium everyone listens and every activity happens if and only if $a \ge k$ and $\min(b, d) \ge c \cdot Q$. Otherwise, no activity happens in any equilibrium.
+\end{theorem}
+\begin{proof}
+If $a < k$, then no activity can have $k$~participants. Suppose that $a \ge k$. When everyone listens, every activity has $a \ge k$ participants and happens, so each member joins $d$ activities of others; if it mutes, it joins none of them, and its own activities are unaffected, since its initiator always takes part. So its gain from listening is $\min(b, d) - c \cdot Q$, and everyone listening is an equilibrium if and only if $\min(b, d) \ge c \cdot Q$; it is then the best equilibrium.
+
+Suppose that $\min(b,d) < c \cdot Q$. When everyone listens, every member gains less from listening than from muting, so all best responses are to mute. When no one listens, a member who listens joins at most $d$ activities of others, so it gains at most $\min(b,d) - c\cdot Q < 0$, and muting is again its best response. So everyone muting is the best equilibrium, and by Proposition~\ref{prop:best} it is the only equilibrium. In it, every activity has only its initiator as a participant, and since $k \ge 2$, no activity happens.
+\end{proof}
+
+So, once a member can fill its $b$~places, it listens if and only if it is shown at most $b/c$ unwanted posts: the tolerance of the first model reappears, now on the side of the readers.
+
+\begin{corollary}\label{cor:game}
+Consider a growing community in which every member initiates $r$~activities on average, so there are $rn$~activities; every activity interests a share~$s$ of the members; and every member is interested in a share~$s$ of the activities and is not interested in the other $(1-s)rn$ (assume that these numbers are integers and that $d \ge b$). In broadcast, $Q = (1-s)rn$, so the activities happen if and only if $sn \ge k$ and $n \le \frac{b}{c(1-s)r}$. In an agora that wrongly shows each member a share~$q$ of the activities it is not interested in, $Q = q(1-s)rn$, so the activities happen if and only if $sn \ge k$ and $n \le \frac{b}{cq(1-s)r}$.
+\end{corollary}
+\begin{proof}
+Apply Theorem~\ref{thm:game} with $a = sn$, $\min(b,d) = b$, and the stated~$Q$.
+\end{proof}
+
+Figure~\ref{fig:game} shows the same effect in random communities, where members differ: activities draw shares $0.5/j$ for $j$ from $1$ to~$50$, $k=4$, $b=3$, $c=0.05$ and $r=0.5$. Under broadcast, the best equilibrium loses all activities beyond about $140$~members; an agora with $q = 0.1$ keeps all of them up to about $1{,}200$~members, and one with $q = 0.01$ up to the largest size we tried, $4{,}000$.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.62\linewidth]{scale_game.pdf}
+\caption{The listening game in random communities: the share of activities with at least $k$~interested members that happen in the best equilibrium, averaged over $40$~communities per size.}
+\label{fig:game}
+\end{figure}
+
+The theorems of this section were also checked by brute force over every listening profile: Theorem~\ref{thm:game} on $7{,}911$ alike communities of up to $9$~members, and Proposition~\ref{prop:best} on $300$ random communities.
+
 \section{Related Work}
 Several lines of work study parts of this setting.
 
@@ -149,7 +201,7 @@ Oliver and Marwell argue that larger groups are more likely to contain a critica
 In the group activity selection problem, agents approve pairs of an activity and a group size, each agent joins at most one activity, and a central authority that knows the preferences assigns agents to activities~\cite{darmann2012gasp}. Our model has a minimum group size as well, but no central knowledge: the question is how the interested members are reached, and at what cost to the others.
 
 \section{Outlook}
-Three extensions seem natural. First, a game-theoretic version, in which initiators decide whether to post and members decide whether to mute, would derive the tolerance from behavior instead of fixing it. Second, members of the agora also have limited attention for invitations; a budget of invitations per member would make the comparison with broadcast tighter. Third, federations of communities would let an activity try a small community first and move to a larger one only when needed, which the window of Corollary~\ref{cor:broadcast} suggests is valuable even under broadcast.
+Two extensions seem natural. First, communities in which members differ deserve a sharper analysis than our simulation; in particular, which members mute first. Second, federations of communities would let an activity try a small community first and move to a larger one only when needed, which the window of Corollary~\ref{cor:broadcast} suggests is valuable even under broadcast.
 
 \bibliographystyle{plain}
 \bibliography{refs}

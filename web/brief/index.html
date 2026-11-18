@@ -149,22 +149,55 @@ document.addEventListener("DOMContentLoaded", function () {
   </div>
 </section>
 <!-- 10 --><section class="slide light">
+  <p class="eyebrow">Strategic members</p>
+  <h2>Members may mute; posting is free</h2>
+  <div class="box" style="margin-top:20px">
+<p>Each member initiates \(r\) activities on average (\(rn\) in all) and posts them all: posting costs nothing.</p>
+<p>Each member <b>listens</b> or <b>mutes</b>. A listener sees the posts it wants, plus \(Q\) it does not want: broadcast shows all of these; an agora wrongly shows a share \(q\).</p>
+<p><b>Payoff:</b> its own activities, plus others' activities it joins (at most \(b\)), minus \(c\) per unwanted post seen.</p>
+  </div>
+  <p class="why">Equilibrium: no member gains by switching. We take the best one, which every member prefers.</p>
+</section>
+<!-- 11 --><section class="slide light">
+  <p class="eyebrow">Theorem 3</p>
+  <h2>All or nothing</h2>
+  <div class="box" style="margin-top:20px">
+<p>Let every activity interest \(a\) members, and every member want \(d\) activities of others and be shown \(Q\) unwanted posts.</p>
+<p>Then everyone listens and every activity happens iff</p>
+<p class="eq">\(a \ \ge\ k \quad\text{and}\quad \min(b, d) \ \ge\ c \cdot Q\)</p>
+<p>Otherwise, no activity happens in any equilibrium.</p>
+  </div>
+  <div class="why"><p>Listening gains at most \(b\) and costs \(c \cdot Q\); the gain exists only if others listen too.</p>
+<p>So a member bears at most \(\tfrac{{b}}{{c}}\) unwanted posts: the tolerance of the first model.</p></div>
+</section>
+<!-- 12 --><section class="slide light">
+  <p class="eyebrow">Simulation</p>
+  <h2>Agents push the limit out by a factor \(1/q\)</h2>
+  <div class="split">
+    <div><div class="box"><p>Broadcast shows \((1-s)\,rn\) unwanted posts, so it dies once</p>
+<p class="eq">\(n \ >\ \tfrac{b}{c(1-s)r}\)</p>
+<p>An agora dies only \(\tfrac{1}{q}\) times later.</p>
+<p>Random communities: \(k=4\), \(b=3\), \(c=0.05\), \(r=0.5\).</p></div><div class="why"><p>Best equilibrium, from "all listen" by best responses; 40 communities per size.</p></div></div>
+    <div class="pic"><svg viewBox="0 0 1000 640" width="1000" height="640" font-family="Heebo, Arial, sans-serif" ><line x1="120" y1="540" x2="810" y2="540" stroke="#E6E5E0" stroke-width="2"/><text x="106" y="549" font-size="24" fill="#5F6368" text-anchor="end" font-weight="400" >0</text><line x1="120" y1="295" x2="810" y2="295" stroke="#E6E5E0" stroke-width="2"/><text x="106" y="304.0" font-size="24" fill="#5F6368" text-anchor="end" font-weight="400" >0.5</text><line x1="120" y1="50" x2="810" y2="50" stroke="#E6E5E0" stroke-width="2"/><text x="106" y="59" font-size="24" fill="#5F6368" text-anchor="end" font-weight="400" >1</text><text x="120.0" y="578" font-size="24" fill="#5F6368" text-anchor="middle" font-weight="400" >20</text><text x="329.5971386295139" y="578" font-size="24" fill="#5F6368" text-anchor="middle" font-weight="400" >100</text><text x="510.13428712349537" y="578" font-size="24" fill="#5F6368" text-anchor="middle" font-weight="400" >400</text><text x="629.4628515060183" y="578" font-size="24" fill="#5F6368" text-anchor="middle" font-weight="400" >1,000</text><text x="810.0" y="578" font-size="24" fill="#5F6368" text-anchor="middle" font-weight="400" >4,000</text><text x="465.0" y="620" font-size="28" fill="#5F6368" text-anchor="middle" font-weight="700" >community size n (members)</text><text x="30" y="295.0" font-size="26" fill="#5F6368" text-anchor="middle" font-weight="700" transform="rotate(-90 30 295.0)">share of possible activities</text><polyline fill="none" stroke="#F7941D" stroke-width="5" stroke-linejoin="round" points="200.1,50.0 219.7,50.0 239.3,50.0 258.7,50.0 277.4,50.0 297.2,50.0 317.3,50.0 337.2,50.0 356.6,50.0 376.2,50.0 396.4,50.0 415.9,50.0 435.2,50.0 455.0,50.0 474.8,50.0 494.6,50.0 514.3,50.0 533.9,50.0 553.7,50.0 573.4,50.0 593.2,50.0 612.8,50.0 632.6,50.0 652.3,50.0 672.0,50.0 691.7,50.0 711.4,50.0 731.1,50.0 750.9,50.0 770.6,50.0 790.3,50.0 810.0,50.0"/><text x="824.0" y="59.0" font-size="26" fill="#26282C" text-anchor="start" font-weight="700" >agora, q = 0.01</text><polyline fill="none" stroke="#E8B07A" stroke-width="5" stroke-linejoin="round" points="200.1,50.0 219.7,50.0 239.3,50.0 258.7,50.0 277.4,50.0 297.2,50.0 317.3,50.0 337.2,50.0 356.6,50.0 376.2,50.0 396.4,50.0 415.9,50.0 435.2,50.2 455.0,50.0 474.8,50.0 494.6,50.2 514.3,50.0 533.9,50.0 553.7,50.0 573.4,50.0 593.2,50.0 612.8,50.0 632.6,50.0 652.3,50.0 672.0,102.7 691.7,466.9 711.4,540.0 731.1,540.0 750.9,540.0 770.6,540.0 790.3,540.0 810.0,540.0"/><text x="615.7417489796017" y="295.0" font-size="26" fill="#26282C" text-anchor="end" font-weight="700" >agora, q = 0.1</text><polyline fill="none" stroke="#26282C" stroke-width="5" stroke-linejoin="round" points="200.1,50.0 219.7,220.9 239.3,317.6 258.7,319.7 277.4,273.4 297.2,194.3 317.3,373.9 337.2,331.7 356.6,246.5 376.2,540.0 396.4,540.0 415.9,540.0 435.2,540.0 455.0,540.0 474.8,540.0 494.6,540.0 514.3,540.0 533.9,540.0 553.7,540.0 573.4,540.0 593.2,540.0 612.8,540.0 632.6,540.0 652.3,540.0 672.0,540.0 691.7,540.0 711.4,540.0 731.1,540.0 750.9,540.0 770.6,540.0 790.3,540.0 810.0,540.0"/><text x="263.0723051750439" y="172.5" font-size="26" fill="#26282C" text-anchor="middle" font-weight="700" >broadcast</text></svg></div>
+  </div>
+</section>
+<!-- 13 --><section class="slide light">
   <p class="eyebrow">Related work</p>
   <h2>Closest work, and the difference</h2>
   <div class="rw"><div class="box"><h3>Attention as a commons</h3><p class="who">Anderson &amp; de Palma 2009 (RAND)</p><p class="diff">senders over-use readers’ attention; no groups</p></div><div class="box"><h3>Niche crowding</h3><p class="who">Falkinger 2005 (IZA working paper)</p><p class="diff">larger reach raises the bar to be noticed; no groups</p></div><div class="box"><h3>Critical mass</h3><p class="who">Oliver &amp; Marwell 1988 (ASR)</p><p class="diff">big groups reach k, if the few “find one another”</p></div><div class="box"><h3>Group activity selection</h3><p class="who">Darmann et al. 2012 (WINE)</p><p class="diff">minimum group sizes; a planner knows all</p></div></div>
   <p class="why" style="margin-top:30px">New here: threshold groups found through one channel whose cost falls on all members; the number of groups as a function of community size.</p>
 </section>
-<!-- 11 --><section class="slide light">
+<!-- 14 --><section class="slide light">
   <p class="eyebrow">Summary</p>
   <h2>Broadcast cost grows with \(n\); agora cost does not</h2>
   <div class="rows ruled">
     <div class="row"><span class="n">1</span><p>Broadcast: each activity happens only in a window of sizes; niche ones never</p></div>
     <div class="row"><span class="n">2</span><p>Agora: once an activity can happen, it always can; wrong guesses only delay it</p></div>
-    <div class="row"><span class="n">3</span><p>Open: initiators and members as players (post, mute); invitation budgets</p></div>
+    <div class="row"><span class="n">3</span><p>Muting: broadcast dies past a size; agents multiply that size by \(1/q\)</p></div>
     <div class="row"><span class="n">4</span><p>Next: federation — try locally, escalate only when needed</p></div>
   </div>
 </section>
-<!-- 12 --><section class="slide dark center">
+<!-- 15 --><section class="slide dark center">
   <p class="eyebrow">AI-Agora</p>
   <h1>The Scale Paradox</h1>
   <p class="big">Bigger group chats form fewer groups, unless agents route</p>

@@ -34,3 +34,17 @@ for a in ax:
 fig.tight_layout()
 fig.savefig(os.path.join(ROOT, 'paper', 'scale', 'scale.pdf'))
 print('wrote paper/scale/scale.pdf')
+
+# strategic version: share of possible activities that happen in the best equilibrium
+game = [r for r in csv.DictReader(open(os.path.join(ROOT, 'runs', 'scale_game.csv'))) if float(r['viable']) >= 1]
+fig, ax = plt.subplots(figsize=(4.2, 2.5))
+ns = [int(r['n']) for r in game]
+for key, col, lab in (('agora_q0.01', OR, 'agora, q = 0.01'), ('agora_q0.1', LT, 'agora, q = 0.1'), ('broadcast', DK, 'broadcast')):
+    ax.plot(ns, [float(r[key]) / float(r['viable']) for r in game], color=col, lw=1.8, label=lab)
+ax.set_xscale('log'); ax.set_xlim(20, 4000); ax.set_ylim(-0.02, 1.05)
+ax.set_xlabel('community size n'); ax.set_ylabel('share of possible activities')
+ax.legend(frameon=False, loc='center left', fontsize=8)
+ax.spines[['top', 'right']].set_visible(False)
+fig.tight_layout()
+fig.savefig(os.path.join(ROOT, 'paper', 'scale', 'scale_game.pdf'))
+print('wrote paper/scale/scale_game.pdf')
