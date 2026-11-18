@@ -157,58 +157,61 @@ def thm(label, title, box, why, vis, caption='', stack=False, pic_h=None):
 </section>'''
 
 
-I = lambda v: f'<i>{v}</i>'
+I = lambda v: '\\(' + v + '\\)'
+M = I
 n, m, b, p = I('n'), I('m'), I('b'), I('p')
+bm, mb = M(r'b/m'), M(r'm/b')                    # in titles
+BM, MB = M(r'\tfrac{b}{m}'), M(r'\tfrac{m}{b}')  # in boxes
 
-S(f'''<section class="slide light">
+S(f"""<section class="slide light">
   <p class="eyebrow">Motivation</p>
   <h2>Soon, everyone has an AI agent</h2>
   <p class="sub">Each question costs attention; no one is committed without a yes.</p>
   <div class="vis">{d.ask_vis()}</div>
-</section>''')
+</section>""")
 
 S(thm('Model', 'Pick one option, ask little, only yes counts',
-      f'''<p>{n} people, {m} options. Each person approves some options, unknown to everyone, its agent included.</p>
-<p>A person’s agent may ask it at most {b} questions: “do you approve option <i>o</i>?”</p>
-<p><b>Outcome:</b> one option, with the people who said yes to it.<br><b>Welfare:</b> their number. <b>OPT:</b> the most approvers of any option.</p>''',
+      f"""<p>{n} people, {m} options. Each person approves some options, unknown to everyone, its agent included.</p>
+<p>A person’s agent may ask it at most {b} questions: “do you approve option {M('o')}?”</p>
+<p><b>Outcome:</b> one option, with the people who said yes to it.<br><b>Welfare:</b> their number. <b>OPT:</b> the most approvers of any option.</p>""",
       'Running example: 8 people, 6 options, 2 questions each.',
       svg(830, 560, mini_grid({'asks': []}, 'who approves what: unknown', 0))))
 
 S(thm('Model', 'Three settings, one measure',
-      f'''<p><b>Silos:</b> agents ask alone, then report; a rule picks.</p>
+      f"""<p><b>Silos:</b> agents ask alone, then report; a rule picks.</p>
 <p><b>Central:</b> a coordinator sees all answers and decides who is asked what.</p>
 <p><b>Grassroots:</b> agents message each other; all output the same outcome.</p>
-<p><b>Guarantee:</b> min over communities of E[welfare] ÷ OPT.<br><b>Gain:</b> best central ÷ best silos.</p>''',
+<p><b>Guarantee:</b> {M(r'\min_{\text{communities}}\ \mathbb{E}[\text{welfare}]\,/\,\mathrm{OPT}')}. <b>Gain:</b> best central / best silos.</p>""",
       'Questions (attention) and messages are counted separately.',
       model_vis(), stack=True, pic_h=250))
 
-S(thm('Theorem 1', f'Silos guarantee exactly {b}/{m}',
-      f'<p>In silos, the best guarantee is {b}/{m}.</p>',
-      f'''<p><b>≥</b> Each agent asks {b} random options; the rule picks the most-yes option. Every approver of the best option is found with probability {b}/{m}.</p>
-<p><b>≤</b> Let everyone approve one hidden option. An agent alone asks about it with probability at most {b}/{m}.</p>''',
-      grids_vis(('silos',)), '8 people, 6 options, 2 questions: 3 join (expected 2.7).'))
+S(thm('Theorem 1', f'Silos guarantee exactly {bm}',
+      f'<p>In silos, the best guarantee is {BM}.</p>',
+      f"""<p><b>≥</b> Each agent asks {b} random options; the rule picks the most-yes option. Every approver of the best option is found with probability {BM}.</p>
+<p><b>≤</b> Let everyone approve one hidden option. An agent alone asks about it with probability at most {BM}.</p>""",
+      grids_vis(('silos',)), f"{M('n=8,\\ m=6,\\ b=2')}: 3 join (expected 2.7)."))
 
-S(thm('Theorem 2', f'Central gets everyone: a gain of {m}/{b}',
-      f'<p>If {n} ≥ {m}, {b} ≥ 2, and all approve one option, then central enrolls everyone. Hence the gain is {m}/{b}, the most possible.</p>',
+S(thm('Theorem 2', f'Central gets everyone: a gain of {mb}',
+      f"<p>If {M(r'n \ge m')}, {M(r'b \ge 2')}, and all approve one option, then central enrolls everyone. Hence the gain is {MB}, the most possible.</p>",
       '<p><b>Explore:</b> one question per person, spread over all options; only the favorite gets a yes. <b>Commit:</b> everyone asks about it.</p>',
-      grids_vis(), stack=True))
+      grids_vis(), stack=True, pic_h=350))
 
 S(thm('Theorem 3', 'No shared tastes, no gain',
-      f'<p>If only one person approves only one option, then no protocol in any setting guarantees more than {b}/{m}.</p><p>So over all communities, the gain is 1.</p>',
-      f'<p>Until that exact pair is asked, all answers are no. Only {n}·{b} of the {n}·{m} pairs can be asked.</p>',
+      f'<p>If only one person approves only one option, then no protocol in any setting guarantees more than {BM}.</p><p>So over all communities, the gain is 1.</p>',
+      f"<p>Until that exact pair is asked, all answers are no. Only {M(r'n b')} of the {M(r'n m')} pairs can be asked.</p>",
       d.tastes_vis()))
 
 S(thm('Theorem 4', 'A popular option: central nears OPT',
-      f'''<p>If {b} ≥ 2 and some option is approved by a fraction {p} of the people, then central’s expected welfare is at least</p>
-<p class="eq">(1 − O(√(<i>m</i> log(<i>mn</i>) ⁄ <i>n</i>(<i>b</i>−1)) ⁄ <i>p</i>)) · OPT.</p>
-<p>For fixed {m}, {b}, {p}: it tends to OPT as {n} grows; silos stay at {b}/{m}.</p>''',
-      f'<p><b>Explore:</b> ≈ {n}({b}−1)/{m} random people per option estimate its popularity.</p><p><b>Commit:</b> everyone asks about the leader.</p>',
-      d.scale_vis(), 'Simulation: popular option 1/2, others 1/4; m = 10, b = 2.'))
+      f"""<p>If {M(r'b \ge 2')} and some option is approved by a fraction {p} of the people, then central’s expected welfare is at least</p>
+<p class="eq">{M(r'\Big(1 - O\Big(\tfrac{1}{p}\sqrt{\tfrac{m \log (mn)}{n(b-1)}}\Big)\Big)\cdot \mathrm{OPT}')}</p>
+<p>For fixed {m}, {b}, {p}: it tends to OPT as {n} grows; silos stay at {BM}.</p>""",
+      f"<p><b>Explore:</b> about {M(r'\tfrac{n(b-1)}{m}')} random people per option estimate its popularity. <b>Commit:</b> all ask about the leader.</p>",
+      d.scale_vis(), f"Simulation: popular option {M(r'\tfrac12')}, others {M(r'\tfrac14')}; {M(r'm=10,\ b=2')}."))
 
 S(thm('Theorem 5', 'One question each: still nears OPT',
-      f'<p>If {b} = 1, then sampling ({n}/{m})<sup>2/3</sup> people per option, and asking everyone else about the leader, gives welfare that tends to OPT as {n} grows.</p>',
-      f'<p>Explorers of losing options cannot join: about {m}·({n}/{m})<sup>2/3</sup> people, a vanishing fraction.</p>',
-      bars_vis(), 'Simulation: popular option at 1/2, 10 options.'))
+      f"<p>If {M('b=1')}, then sampling {M(r'(n/m)^{2/3}')} people per option, and asking everyone else about the leader, gives welfare that tends to OPT as {n} grows.</p>",
+      f"<p>Explorers of losing options cannot join: about {M(r'm\,(n/m)^{2/3}')} people, a vanishing fraction.</p>",
+      bars_vis(), f"Simulation: popular option {M(r'\tfrac12')}, {M('m=10')}."))
 
 S(thm('Observation', 'In this model, grassroots ≥ central',
       '<p>For every budget, best grassroots ≥ best central: agents agree in advance that agent 1 coordinates. Same questions, same messages.</p>',
@@ -226,7 +229,7 @@ S('''<section class="slide dark">
   <p class="eyebrow">Summary</p>
   <h2>Sharing pays exactly when tastes are shared</h2>
   <div class="rows ruled">
-    <div class="row"><span class="n">1</span><p>Silos: <i>b</i>/<i>m</i>. Central: up to OPT, never more than <i>m</i>/<i>b</i> times silos.</p></div>
+    <div class="row"><span class="n">1</span><p>Silos: \\(b/m\\). Central: up to OPT, never more than \\(m/b\\) times silos.</p></div>
     <div class="row"><span class="n">2</span><p>Open: sharper protocols, especially for one question each</p></div>
     <div class="row"><span class="n">3</span><p>Next: many options at once, each person in at most one (groups)</p></div>
     <div class="row"><span class="n">4</span><p>Next: model what separates grassroots from central</p></div>
@@ -234,6 +237,12 @@ S('''<section class="slide dark">
 </section>''')
 
 slides.append(TITLE)
+
+KATEX_INIT = r"""<script>
+document.addEventListener("DOMContentLoaded", function () {
+  renderMathInElement(document.body, {delimiters: [{left: "\\(", right: "\\)", display: false}]});
+});
+</script>"""
 
 STYLE = '''<style>
 .sub { font-size: 42px; color: var(--gray); margin-top: -20px; }
@@ -276,6 +285,10 @@ html = '''<!doctype html>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300..900&display=swap">
 <link rel="stylesheet" href="../assets/deck.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+''' + KATEX_INIT + '''
 ''' + STYLE + '''
 </head>
 <body>
