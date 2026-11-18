@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agents that form groups · AI-Agora</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300..900&display=swap">
+<link rel="stylesheet" href="../assets/deck.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  renderMathInElement(document.body, {delimiters: [{left: "\\(", right: "\\)", display: false}]});
+});
+</script><style>
+.sub { font-size: 42px; color: var(--gray); margin-top: -20px; }
+.split { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center; margin-block: auto; }
+.stack { display: flex; flex-direction: column; gap: 10px; margin-top: -10px; }
+.stack .pic svg { max-height: var(--ph, 400px); }
+.box { background: var(--card); border-left: 10px solid var(--orange); border-radius: 0 18px 18px 0;
+  padding: 24px 32px; font-size: 36px; line-height: 1.33; }
+.box p { margin: 0 0 16px; } .box p:last-child { margin: 0; }
+.box .eq { text-align: center; font-size: 36px; }
+.why { font-size: 31px; color: var(--gray); line-height: 1.33; margin-top: 22px; }
+.why p { margin: 0 0 12px; }
+.pic svg { width: 100%; height: auto; max-height: var(--ph, 560px); }
+.pic .cap { font-size: 28px; color: var(--gray); text-align: center; margin-top: 10px; }
+.vis { margin-block: auto; display: flex; justify-content: center; }
+.badge { display: inline-block; margin-left: 18px; padding: 4px 18px; border-radius: 999px; font-size: 26px;
+  font-weight: 700; vertical-align: 4px; }
+.badge.proved { background: var(--orange); color: var(--dark); }
+.badge.sim { border: 3px solid var(--orange); color: var(--dark); }
+.badge.open { background: var(--gray-light); color: var(--dark); }
+.tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 36px; width: 100%; }
+.tile { background: var(--card); border: 3px solid var(--gray-light); border-radius: 28px; padding: 40px 36px; }
+.tile .big { font-size: 140px; font-weight: 800; color: var(--orange); line-height: 1; }
+.tile .cap { font-size: 38px; font-weight: 700; margin-top: 24px; line-height: 1.25; }
+.rw { display: grid; grid-template-columns: 1fr 1fr; gap: 28px 36px; margin-top: 10px; }
+.rw .box { background: var(--card); border: 3px solid var(--gray-light); border-radius: 24px; padding: 26px 32px; }
+.rw h3 { font-size: 40px; margin: 0 0 8px; }
+.rw .who { font-size: 30px; color: var(--gray); margin: 0 0 10px; }
+.rw .diff { font-size: 32px; margin: 0; }
+.rows a { color: inherit; }
+
+.tile .big { font-size: 96px; }
+.why { margin-top: 28px; }
+</style>
+</head>
+<body>
+<div id="stage">
+<!-- 1 --><section class="slide dark center">
+  <p class="eyebrow">AI-Agora</p>
+  <h1>Agents that form groups</h1>
+  <p class="big">Evidence, open problems, and an app</p>
+  <p class="muted">Nimrod Talmon · Ben-Gurion University · draft, November 18, 2026</p>
+</section>
+<!-- 2 --><section class="slide light">
+  <p class="eyebrow">Evidence · Edge Esmeralda Agent Village, June 2026</p>
+  <h2>Agents are fast; the human yes is the bottleneck</h2>
+  <div class="vis"><div class="tiles"><div class="tile"><div class="big">239</div><div class="cap">personal agents, one per attendee</div></div><div class="tile"><div class="big">147</div><div class="cap">accepted intros out of 9,688 possible</div></div><div class="tile"><div class="big">4.9 s</div><div class="cap">median agent negotiation</div></div><div class="tile"><div class="big">20 h</div><div class="cap">median wait for both humans’ yes</div></div></div></div>
+  <p class="why">Source: Cosmos Institute, July 2026. Also: popular people were swamped; a $10k fund was allocated before owners confirmed.</p>
+</section>
+<!-- 3 --><section class="slide light">
+  <p class="eyebrow">Evidence · failures across deployments</p>
+  <h2>Each failure is a constraint of the model</h2>
+  <div class="rows ruled"><div class="row"><span class="n">1</span><p>Confirmation skipped when optional → <b>only a yes enrolls</b></p></div><div class="row"><span class="n">2</span><p>Popular people swamped → <b>a question budget per person</b></p></div><div class="row"><span class="n">3</span><p>Agents invent details about their person → <b>predictions never count as consent</b></p></div><div class="row"><span class="n">4</span><p>Agents take the first offer (82–100%) → <b>compare protocols to OPT</b></p></div></div>
+  <p class="why">Sources: Cosmos Institute 2026; Habermolt (arXiv 2605.24413); Magentic Marketplace (arXiv 2510.25779).</p>
+</section>
+<!-- 4 --><section class="slide light">
+  <p class="eyebrow">Landscape</p>
+  <h2>The open slot: an agent per person, new groups</h2>
+  <div class="vis"><svg viewBox="0 0 1300 600" width="1300" height="600" font-family="Heebo, Arial, sans-serif" ><rect x="308.0" y="68.0" width="464.0" height="224.0" rx="22" fill="#FDFDFB" stroke="#B9BCC1" stroke-width="3"/><text x="540.0" y="174.0" font-size="30" fill="#26282C" text-anchor="middle" font-weight="400" >schedulers (x.ai,</text><text x="540.0" y="216.0" font-size="30" fill="#26282C" text-anchor="middle" font-weight="400" >Clara: shut down)</text><rect x="788.0" y="68.0" width="464.0" height="224.0" rx="22" fill="#FDFDFB" stroke="#B9BCC1" stroke-width="3"/><text x="1020.0" y="174.0" font-size="30" fill="#26282C" text-anchor="middle" font-weight="400" >ChatGPT, Meta AI,</text><text x="1020.0" y="216.0" font-size="30" fill="#26282C" text-anchor="middle" font-weight="400" >Instinct group chats</text><rect x="308.0" y="308.0" width="464.0" height="224.0" rx="22" fill="#FDFDFB" stroke="#B9BCC1" stroke-width="3"/><text x="540.0" y="414.0" font-size="30" fill="#26282C" text-anchor="middle" font-weight="400" >Blockit, Boardy,</text><text x="540.0" y="456.0" font-size="30" fill="#26282C" text-anchor="middle" font-weight="400" >Ditto, dating agents</text><rect x="788.0" y="308.0" width="464.0" height="224.0" rx="22" fill="#F7941D" stroke="#F7941D" stroke-width="3"/><text x="1020.0" y="436.0" font-size="40" fill="#26282C" text-anchor="middle" font-weight="800" >empty: AI-Agora</text><text x="540.0" y="44" font-size="34" fill="#5F6368" text-anchor="middle" font-weight="700" >pairs</text><text x="1020.0" y="44" font-size="34" fill="#5F6368" text-anchor="middle" font-weight="700" >new groups</text><text x="280" y="190.0" font-size="32" fill="#5F6368" text-anchor="end" font-weight="700" >one shared AI</text><text x="280" y="430.0" font-size="32" fill="#5F6368" text-anchor="end" font-weight="700" >agent per person</text></svg></div>
+</section>
+<!-- 5 --><section class="slide light">
+  <p class="eyebrow">What spreads</p>
+  <h2>A link that is useless until others answer</h2>
+  <div class="vis"><div class="tiles"><div class="tile"><div class="big">98%</div><div class="cap">of Doodle users came by invite (2011, 10M monthly)</div></div><div class="tile"><div class="big">+400%</div><div class="cap">Partiful monthly app users in a year (2025)</div></div><div class="tile"><div class="big">0</div><div class="cap">accounts needed to answer When2meet</div></div><div class="tile"><div class="big">325→220</div><div class="cap">Timeleft cities, grown by paid ads</div></div></div></div>
+  <p class="why">Stranger matching has no invite loop: a member does not know whom to invite.</p>
+</section>
+<!-- 6 --><section class="slide light">
+  <p class="eyebrow">Problem 1 · most open</p>
+  <h2>Threshold groups with consent</h2>
+  <div class="split">
+    <div><div class="box"><p>\(n\) members, \(m\) initiatives (acceptances unknown); initiative \(j\) forms only with at least \(k_j\) members.</p>
+<p>An agent may ask its member at most \(b\) questions: “join \(j\) if it forms?”</p>
+<p><b>Outcome:</b> disjoint groups of members who said yes. <b>Welfare:</b> members placed.</p></div><div class="why"><p><b>New:</b> groups with a minimum, not pairs; questions to failing groups are wasted.</p></div></div>
+    <div class="pic"><svg viewBox="0 0 760 520" width="760" height="520" font-family="Heebo, Arial, sans-serif" ><rect x="20" y="20" width="720" height="480" rx="36" fill="#FDFDFB" stroke="#B9BCC1" stroke-width="4"/><text x="380.0" y="110" font-size="50" fill="#26282C" text-anchor="middle" font-weight="800" >Sunday 8am run</text><text x="380.0" y="170" font-size="30" fill="#5F6368" text-anchor="middle" font-weight="400" >forms at 5 · no one is in before that</text><circle cx="160.0" cy="250" r="30" fill="#26282C"/><path d="M112.0 328.0 a48.0 48.0 0 0 1 96.0 0 Z" fill="#26282C"/><circle cx="270.0" cy="250" r="30" fill="#26282C"/><path d="M222.0 328.0 a48.0 48.0 0 0 1 96.0 0 Z" fill="#26282C"/><circle cx="380.0" cy="250" r="30" fill="#26282C"/><path d="M332.0 328.0 a48.0 48.0 0 0 1 96.0 0 Z" fill="#26282C"/><circle cx="490.0" cy="250" r="30" fill="#B9BCC1"/><path d="M442.0 328.0 a48.0 48.0 0 0 1 96.0 0 Z" fill="#B9BCC1"/><circle cx="600.0" cy="250" r="30" fill="#B9BCC1"/><path d="M552.0 328.0 a48.0 48.0 0 0 1 96.0 0 Z" fill="#B9BCC1"/><rect x="180.0" y="370" width="400" height="84" rx="42" fill="#F7941D"/><text x="380.0" y="425" font-size="40" fill="#26282C" text-anchor="middle" font-weight="800" >we need 2 more</text></svg></div>
+  </div>
+</section>
+<!-- 7 --><section class="slide light">
+  <p class="eyebrow">Problem 2 · safest</p>
+  <h2>A twin predicts, the person decides</h2>
+  <div class="split">
+    <div><div class="box"><p>An agent holds a prediction of its member (a “twin”), error unknown, and asks at most \(b\) questions.</p>
+<p>The twin only picks whom to ask.</p>
+<p><b>Goal:</b> good if the twin is right, safe if not.</p></div><div class="why"><p><b>Why now:</b> twins reach 83–86% of a person’s own consistency (Park et al. 2024).</p></div></div>
+    <div class="pic"><svg viewBox="0 0 820 520" width="820" height="520" font-family="Heebo, Arial, sans-serif" ><circle cx="130" cy="150" r="56" fill="#26282C"/><path d="M40.39999999999999 295.6 a89.60000000000001 89.60000000000001 0 0 1 179.20000000000002 0 Z" fill="#26282C"/><text x="130" y="360" font-size="34" fill="#5F6368" text-anchor="middle" font-weight="700" >person</text><circle cx="410" cy="150" r="56" fill="none" stroke="#F7941D" stroke-width="8" stroke-dasharray="14 10"/><path d="M320 296 a90 90 0 0 1 180 0" fill="none" stroke="#F7941D" stroke-width="8" stroke-dasharray="14 10"/><text x="410" y="360" font-size="34" fill="#5F6368" text-anchor="middle" font-weight="700" >twin: 80% yes</text><rect x="635.0" y="125.0" width="110" height="88.0" rx="22.0" fill="#F7941D"/><circle cx="668.0" cy="170.83333333333334" r="10.0" fill="#26282C"/><circle cx="712.0" cy="170.83333333333334" r="10.0" fill="#26282C"/><line x1="690" y1="125.0" x2="690" y2="100.8" stroke="#F7941D" stroke-width="5"/><circle cx="690" cy="96.4" r="9.166666666666666" fill="#F7941D"/><text x="690" y="360" font-size="34" fill="#5F6368" text-anchor="middle" font-weight="700" >agent</text><path d="M690 400 L690 450 L130 450 L130 400" fill="none" stroke="#F7941D" stroke-width="5"/><text x="410" y="500" font-size="30" fill="#26282C" text-anchor="middle" font-weight="700" >asks the person only when unsure</text></svg></div>
+  </div>
+</section>
+<!-- 8 --><section class="slide light">
+  <p class="eyebrow">Problems 3–5</p>
+  <h2>Three more, from the same model</h2>
+  <div class="rows ruled"><div class="row"><span class="n">3</span><p><b>Grassroots vs central:</b> separate them by load per agent, privacy, dropouts</p></div><div class="row"><span class="n">4</span><p><b>Incentives of question order:</b> agents exaggerate flexibility to be asked first</p></div><div class="row"><span class="n">5</span><p><b>Value of pooling:</b> correlated tastes save questions, but leak information</p></div></div>
+  <p class="why">3 extends our single-option observation; 4 is the hardest; 5 is the formal “value of the Agora”.</p>
+</section>
+<!-- 9 --><section class="slide light">
+  <p class="eyebrow">App concept</p>
+  <h2>“We need 2 more”: a card that recruits</h2>
+  <div class="vis"><svg viewBox="0 0 1500 470" width="1500" height="470" font-family="Heebo, Arial, sans-serif" ><rect x="30" y="120" width="250" height="190" rx="24" fill="#FDFDFB" stroke="#B9BCC1" stroke-width="3"/><text x="155" y="205" font-size="32" fill="#26282C" text-anchor="middle" font-weight="700" >intention</text><text x="155" y="90" font-size="40" fill="#F7941D" text-anchor="middle" font-weight="800" >1</text><path d="M288 215 l26 0" stroke="#5F6368" stroke-width="5"/><path d="M314 215 l-12 -10 l0 20 z" fill="#5F6368"/><rect x="330" y="120" width="250" height="190" rx="24" fill="#FDFDFB" stroke="#B9BCC1" stroke-width="3"/><text x="455" y="185" font-size="32" fill="#26282C" text-anchor="middle" font-weight="700" >agents pick</text><text x="455" y="227" font-size="32" fill="#26282C" text-anchor="middle" font-weight="700" >likely people</text><text x="455" y="90" font-size="40" fill="#F7941D" text-anchor="middle" font-weight="800" >2</text><path d="M588 215 l26 0" stroke="#5F6368" stroke-width="5"/><path d="M614 215 l-12 -10 l0 20 z" fill="#5F6368"/><rect x="630" y="120" width="250" height="190" rx="24" fill="#FDFDFB" stroke="#B9BCC1" stroke-width="3"/><text x="755" y="185" font-size="32" fill="#26282C" text-anchor="middle" font-weight="700" >one question</text><text x="755" y="227" font-size="32" fill="#26282C" text-anchor="middle" font-weight="700" >each</text><text x="755" y="90" font-size="40" fill="#F7941D" text-anchor="middle" font-weight="800" >3</text><path d="M888 215 l26 0" stroke="#5F6368" stroke-width="5"/><path d="M914 215 l-12 -10 l0 20 z" fill="#5F6368"/><rect x="930" y="120" width="250" height="190" rx="24" fill="#FDFDFB" stroke="#B9BCC1" stroke-width="3"/><text x="1055" y="185" font-size="32" fill="#26282C" text-anchor="middle" font-weight="700" >forms at</text><text x="1055" y="227" font-size="32" fill="#26282C" text-anchor="middle" font-weight="700" >minimum</text><text x="1055" y="90" font-size="40" fill="#F7941D" text-anchor="middle" font-weight="800" >4</text><path d="M1188 215 l26 0" stroke="#5F6368" stroke-width="5"/><path d="M1214 215 l-12 -10 l0 20 z" fill="#5F6368"/><rect x="1230" y="120" width="250" height="190" rx="24" fill="#F7941D" stroke="#F7941D" stroke-width="3"/><text x="1355" y="185" font-size="32" fill="#26282C" text-anchor="middle" font-weight="700" >short? share</text><text x="1355" y="227" font-size="32" fill="#26282C" text-anchor="middle" font-weight="700" >the card</text><text x="1355" y="90" font-size="40" fill="#F7941D" text-anchor="middle" font-weight="800" >5</text><path d="M1355 320 C 1355 430, 155 430, 155 320" fill="none" stroke="#F7941D" stroke-width="5" stroke-dasharray="12 10"/><text x="750.0" y="455" font-size="32" fill="#5F6368" text-anchor="middle" font-weight="700" >each short card recruits new people: the growth loop</text></svg></div>
+  <p class="why">Inside the app is Problem 1: whom to ask, in what order, under a cap of questions per person.</p>
+</section>
+<!-- 10 --><section class="slide light">
+  <p class="eyebrow">Direction</p>
+  <h2>One paper, one testbed</h2>
+  <div class="vis"><svg viewBox="0 0 1300 420" width="1300" height="420" font-family="Heebo, Arial, sans-serif" ><rect x="60" y="40" width="480" height="300" rx="28" fill="#FDFDFB" stroke="#F7941D" stroke-width="5"/><text x="300" y="110" font-size="48" fill="#26282C" text-anchor="middle" font-weight="800" >Paper</text><text x="300" y="175" font-size="32" fill="#26282C" text-anchor="middle" font-weight="400" >threshold groups + twins</text><text x="300" y="225" font-size="32" fill="#26282C" text-anchor="middle" font-weight="400" >adaptivity gap, bounds</text><text x="300" y="275" font-size="32" fill="#26282C" text-anchor="middle" font-weight="400" >silos / central / grassroots</text><rect x="760" y="40" width="480" height="300" rx="28" fill="#FDFDFB" stroke="#F7941D" stroke-width="5"/><text x="1000" y="110" font-size="48" fill="#26282C" text-anchor="middle" font-weight="800" >App</text><text x="1000" y="175" font-size="32" fill="#26282C" text-anchor="middle" font-weight="400" >the “need 2 more” card</text><text x="1000" y="225" font-size="32" fill="#26282C" text-anchor="middle" font-weight="400" >one bounded community</text><text x="1000" y="275" font-size="32" fill="#26282C" text-anchor="middle" font-weight="400" >event log of every question</text><path d="M560 150 L740 150" stroke="#F7941D" stroke-width="6"/><path d="M740 150 l-18 -12 l0 24 z" fill="#F7941D"/><path d="M740 240 L560 240" stroke="#5F6368" stroke-width="6"/><path d="M560 240 l18 -12 l0 24 z" fill="#5F6368"/><text x="650" y="130" font-size="28" fill="#26282C" text-anchor="middle" font-weight="400" >protocols</text><text x="650" y="285" font-size="28" fill="#26282C" text-anchor="middle" font-weight="400" >costs, data</text><text x="650" y="395" font-size="30" fill="#5F6368" text-anchor="middle" font-weight="700" >each logged instance solved exactly offline: compare to OPT</text></svg></div>
+  <p class="why">Start in a bounded community (a conference, a campus): density, safety, and a few hundred people suffice.</p>
+</section>
+<!-- 11 --><section class="slide dark">
+  <p class="eyebrow">Summary</p>
+  <h2>Price the human yes, not the message</h2>
+  <div class="rows ruled"><div class="row"><span class="n">1</span><p>Evidence: agents are fast; consent and attention are the bottleneck</p></div><div class="row"><span class="n">2</span><p>Open theory: threshold groups with consent, guided by twins</p></div><div class="row"><span class="n">3</span><p>App: the “need 2 more” card gives stranger matching an invite loop</p></div><div class="row"><span class="n">4</span><p>Check first: a targeted search on coalition formation with costly questions</p></div></div>
+</section>
+<!-- 12 --><section class="slide dark center">
+  <p class="eyebrow">AI-Agora</p>
+  <h1>Agents that form groups</h1>
+  <p class="big">Evidence, open problems, and an app</p>
+  <p class="muted">Nimrod Talmon · Ben-Gurion University · draft, November 18, 2026</p>
+</section>
+</div>
+<script src="../assets/deck.js"></script>
+</body>
+</html>
