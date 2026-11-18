@@ -17,3 +17,5 @@ paper/scale/*.log
 paper/scale/*.fls
 paper/scale/*.fdb_latexmk
 paper/scale/*.out
+paper/scale/*.bbl
+paper/scale/*.blg

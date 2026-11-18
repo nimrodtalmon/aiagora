@@ -147,17 +147,17 @@ def counts_vis(w=1000, h=640):
 
 def evidence():
     tiles = [('62%', 'of a 4,147-member mailing list: “spamming a large audience” deters posting, the most troubling issue', 'Zhang, Ackerman, Karger, CHI 2015'),
-             ('most', 'posts to groups are the most self-censored of all ways to share', '3.9M Facebook users · Das &amp; Kramer, ICWSM 2013'),
+             ('most', 'posts to groups and status updates are the most self-censored ways to share', '3.9M Facebook users · Das &amp; Kramer, ICWSM 2013'),
              ('mute', 'many respondents mute WhatsApp groups to cope with communication overload', '43 respondents · Mols &amp; Pridmore, Mobile Media &amp; Comm. 2020')]
     return '<div class="ev three">' + ''.join(
         f'<div class="tile"><div class="big">{a}</div><div class="q">{q}</div><div class="src">{s}</div></div>' for a, q, s in tiles) + '</div>'
 
 
 def related_vis():
-    boxes = [('Attention as a commons', 'Anderson &amp; de Palma 2009 (RAND)', 'senders over-use readers’ attention; no groups, no size result'),
+    boxes = [('Attention as a commons', 'Anderson &amp; de Palma 2009 (RAND)', 'senders over-use readers’ attention; no groups'),
              ('Niche crowding', 'Falkinger 2005 (IZA working paper)', 'larger reach raises the bar to be noticed; no groups'),
-             ('Critical mass', 'Oliver &amp; Marwell 1988 (ASR)', 'larger groups reach k; the few must “find one another” — in words'),
-             ('Group activity selection', 'Darmann et al. 2018 (IJGT)', 'groups with lower size bounds; finding members is free')]
+             ('Critical mass', 'Oliver &amp; Marwell 1988 (ASR)', 'big groups reach k, if the few “find one another”'),
+             ('Group activity selection', 'Darmann et al. 2012 (WINE)', 'minimum group sizes; a planner knows all')]
     return '<div class="rw">' + ''.join(
         f'<div class="box"><h3>{t}</h3><p class="who">{w}</p><p class="diff">{x}</p></div>' for t, w, x in boxes) + '</div>'
 

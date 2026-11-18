@@ -1,102 +1,156 @@
 \documentclass[11pt]{article}
 \usepackage[margin=1in]{geometry}
 \usepackage{amsmath,amssymb,amsthm}
+\usepackage{graphicx}
 \usepackage[hidelinks]{hyperref}
 \newtheorem{theorem}{Theorem}
 \newtheorem{corollary}{Corollary}
+\newtheorem{proposition}{Proposition}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 \newtheorem{remark}{Remark}
 \newcommand{\err}{\mathit{err}}
 \newcommand{\tol}{\mathit{tol}}
-\title{The Scale Paradox: Model and Results}
+\title{The Scale Paradox: Bigger Group Chats Form Fewer Groups, Unless Agents Route}
 \author{Nimrod Talmon\\ Ben-Gurion University}
-\date{Draft, November 18, 2026}
+\date{Draft, November 19, 2026}
 \begin{document}
 \maketitle
 
+\begin{abstract}
+A family that moves to a new neighborhood looks for people to share activities with: a running group, a book club, a chess evening. Today this happens in one shared group chat, where every post reaches everyone. We model a community in which an activity happens only if enough interested members hear of it, and in which an initiator posts only if the post bothers few uninterested members. We show that with a shared channel, each activity happens only for community sizes within a window, niche activities never happen, and a large enough community forms no group at all. If instead each member has a personal agent that guesses its member's interests and only the members guessed interested are told, then the number of members bothered does not grow with the community, and once an activity can happen it keeps happening as the community grows.
+\end{abstract}
+
+\section{Introduction}
+Many local groups are organized through a single shared channel, such as a neighborhood group chat or mailing list. Every message in such a channel reaches every member, and members respond by holding back: in a survey of a $4{,}147$-member mailing list, $62\%$ of respondents named the fear of spamming a large audience as a deterrent to posting, the most troubling issue reported~\cite{zhang2015mailing}; on Facebook, posts directed at groups and status updates are self-censored most often among all kinds of sharing~\cite{das2013self}; and in an interview study on WhatsApp, many respondents mute groups to cope with communication overload~\cite{mols2020whatsapp}.
+
+This creates a tension for activities that need a minimum number of participants. A larger community contains more people who would join a given activity, so more activities become possible. But in a larger community a post bothers more uninterested people, so fewer activities are worth posting. Activities that interest only a small share of the members suffer most: they need a large community to find enough participants, and in a large community their posts bother many.
+
+Personal AI agents offer a different channel. If each member's agent knows, roughly, what its member would like to join, then an initiator's agent can tell only the members whose agents guess they are interested. We call this the \emph{agora}. The members bothered are then only those whose agents guessed wrong.
+
+We study this tension in a simple model and show two results. Under broadcast, an activity happens if and only if enough members are interested and few enough are not; hence each activity happens only for community sizes in a window, activities below a share threshold never happen, and a large enough community forms no group (Theorem~\ref{thm:broadcast} and Corollary~\ref{cor:broadcast}). In the agora, an activity happens if and only if enough members are interested, with a margin that covers the agents' errors; hence once an activity can happen, it keeps happening as the community grows (Theorem~\ref{thm:agora} and Corollary~\ref{cor:agora}). The same holds if agents filter at the receiving end, showing each member only what its agent guesses is relevant (Proposition~\ref{prop:filter}).
+
 \section{Model}
-We define the setting, the two channels, the objective, and how a community grows.
+We first define the setting and the objective, then the two channels, and then how a community grows.
 
 \begin{definition}[Setting]
-A community has $n$~members. For each activity type~$t$, a set $A_t$ of $a_t$~members \emph{accept}~$t$, and one of them is the \emph{initiator} of~$t$. The group of type~$t$ \emph{forms} if at least $k \ge 2$ members of $A_t$ are reached; the initiator counts as reached. A reached member outside $A_t$ is \emph{bothered}.
+A community has $n$~members. For each activity~$t$, a set $A_t$ of $a_t$~members are \emph{interested} in~$t$, and one of them is the \emph{initiator} of~$t$. Activity~$t$ \emph{happens} if at least $k \ge 2$ interested members hear of it; the initiator counts as having heard. A member who hears of~$t$ but is not interested in~$t$ is \emph{bothered}.
 \end{definition}
 
-\begin{definition}[Announcement]
-Each initiator has a \emph{tolerance} $\tol \ge 0$: the number of members it is willing to bother. It knows $a_t$ but not who is in $A_t$. It announces~$t$ if and only if, in every case consistent with what it knows, the group forms and at most $\tol$ members are bothered.
-\end{definition}
-
-\begin{definition}[Channels]
-In \emph{broadcast}, an announcement reaches all other $n-1$~members.
-In the \emph{agora}, each member's agent guesses whether its member accepts~$t$; for each type, at most $\err$ of these guesses are wrong. The initiator's agent invites the members guessed to accept, one at a time in some order, and stops once $k-1$~invited members accepted. Each invited member is reached. The initiator knows $\err$, but not which guesses are wrong, nor the order.
+\begin{definition}[Posting rule]
+Each initiator has a \emph{tolerance} $\tol \ge 0$: the number of members it is willing to bother. It knows~$a_t$ but not who is in $A_t$. It posts~$t$ if and only if, in every case consistent with what it knows, the activity happens and at most~$\tol$ members are bothered.
 \end{definition}
 
 \begin{definition}[Objective]
-The \emph{welfare} is the number of groups formed.
+The \emph{welfare} is the number of activities that happen.
+\end{definition}
+
+\begin{definition}[Channels]
+In \emph{broadcast}, a post reaches all other $n-1$~members.
+In the \emph{agora}, each member's agent guesses whether its member is interested in~$t$, and for each activity at most~$\err$ of these guesses are wrong. The initiator's agent tells the members guessed interested, one at a time and in some order, and stops once $k-1$ of them said they are interested. The initiator knows $\err$, but not which guesses are wrong, nor the order.
 \end{definition}
 
 \begin{definition}[Growing community]
-Type~$t$ has a \emph{share} $s_t \in (0,1)$: a community of $n$~members has $a_t = \lfloor s_t n \rfloor$ members who accept~$t$.
+Each activity~$t$ has a \emph{share} $s_t \in (0,1)$: a community of $n$~members has $a_t = \lfloor s_t n \rfloor$ members interested in~$t$.
 \end{definition}
 
 \begin{remark}
-The tolerance models the social cost of posting: people avoid posts that would bother a large audience. If the initiator gains $B$ when the group forms and pays $c$ per bothered member, then $\tol = B/c$. The worst-case rule makes the decision depend only on $n$, $a_t$, $k$, $\tol$ and $\err$.
+The tolerance stands for the social cost of posting. If an initiator gains $B$ when the activity happens and loses $c$ for each bothered member, then~$\tol = B/c$.
+\end{remark}
+
+\begin{remark}
+A member may join many activities, so activities do not compete for members; this keeps the effect of the channel separate from the problem of assigning members to activities.
+\end{remark}
+
+\begin{remark}
+The posting rule is worst-case: an initiator posts only if it is sure. A random version, where each member is interested in~$t$ independently with probability~$s_t$ and each guess is wrong independently, gives the same two shapes in expectation.
 \end{remark}
 
 \section{Broadcast}
+Under broadcast nothing is unknown to the initiator, and the answer is immediate.
+
 \begin{theorem}\label{thm:broadcast}
-In broadcast, type~$t$ forms if and only if $a_t \ge k$ and $n-a_t \le \tol$.
+In broadcast, activity~$t$ happens if and only if $a_t \ge k$ and $n-a_t \le \tol$.
 \end{theorem}
 \begin{proof}
-A broadcast reaches all $n$~members, so the group forms if and only if $a_t \ge k$, and exactly $n-a_t$ members are bothered. Nothing is unknown, so the initiator announces, and the group forms, if and only if both conditions hold.
+A post reaches all $n$~members, so the activity happens if and only if $a_t \ge k$, and exactly $n-a_t$ members are bothered. So the initiator posts, and the activity happens, if and only if both conditions hold.
 \end{proof}
 
 \begin{corollary}\label{cor:broadcast}
-In a growing community, consider a type with share~$s$.
+In a growing community, consider an activity with share~$s$.
 \begin{enumerate}
-\item If $s < \frac{k}{k + \tol}$, then the type never forms, for any~$n$.
-\item The sizes~$n$ at which the type forms form an interval contained in $\big[\frac{k}{s}, \frac{\tol}{1-s}\big]$.
+\item The sizes~$n$ at which it happens form an interval contained in $\big[\frac{k}{s}, \frac{\tol}{1-s}\big]$.
+\item If $s < \frac{k}{k + \tol}$, then it never happens.
 \end{enumerate}
-Hence no group forms once $n > \frac{\tol}{1-s_{\max}}$, where $s_{\max}$ is the largest share.
+Hence no activity happens once $n > \frac{\tol}{1-s_{\max}}$, where $s_{\max}$ is the largest share.
 \end{corollary}
 \begin{proof}
-By Theorem~\ref{thm:broadcast}, the type forms at~$n$ if and only if $\lfloor sn \rfloor \ge k$ and $n - \lfloor sn \rfloor \le \tol$. Both conditions are monotone in~$n$: $\lfloor sn \rfloor$ is nondecreasing, and so is $n - \lfloor sn \rfloor$, since $\lfloor s(n+1) \rfloor \le \lfloor sn \rfloor + 1$. Hence the sizes form an interval. The first condition gives $sn \ge k$, so $n \ge k/s$; the second gives $(1-s)n \le n - \lfloor sn \rfloor \le \tol$, so $n \le \frac{\tol}{1-s}$. If $s < \frac{k}{k+\tol}$, then $\frac{k}{s} > \frac{\tol}{1-s}$, so the interval is empty.
+By Theorem~\ref{thm:broadcast}, the activity happens at~$n$ if and only if $\lfloor sn \rfloor \ge k$ and $n - \lfloor sn \rfloor \le \tol$. Both $\lfloor sn \rfloor$ and $n - \lfloor sn \rfloor$ are nondecreasing in~$n$, the latter since $\lfloor s(n+1) \rfloor \le \lfloor sn \rfloor + 1$; so the first condition holds from some size on, the second up to some size, and the sizes form an interval. The first condition gives $sn \ge k$, so $n \ge k/s$; the second gives $(1-s)n \le n - \lfloor sn \rfloor \le \tol$, so $n \le \frac{\tol}{1-s}$. If $s < \frac{k}{k+\tol}$, then $\frac{k}{s} > \frac{\tol}{1-s}$, so the interval is empty.
 \end{proof}
 
-So, under broadcast, each type forms only in a window of community sizes; niche types, with share below $\frac{k}{k+\tol}$, never form; and in a large enough community, no group forms at all.
+For example, an activity that interests $10\%$ of the members, with $k=4$ and $\tol=50$, happens exactly for communities of $40$ to $55$~members.
 
 \section{Agora}
+In the agora, the members bothered are only those whose agents guessed wrong, and the initiator must also make sure that enough interested members are told despite the errors.
+
 \begin{theorem}\label{thm:agora}
-In the agora, type~$t$ forms if and only if $a_t \ge k + \err$ and $\min(\err, n-a_t) \le \tol$.
+In the agora, activity~$t$ happens if and only if $a_t \ge k + \err$ and $\min(\err, n-a_t) \le \tol$.
 \end{theorem}
 \begin{proof}
-Suppose both conditions hold, and fix any set of at most $\err$ wrong guesses and any order. Of the $a_t-1$ other members of $A_t$, at most $\err$ are guessed not to accept, so at least $a_t-1-\err \ge k-1$ of them are invited, unless $k-1$ invited members accepted earlier. Either way, $k-1$ invited members accept, and the group forms. The bothered members are invited members outside $A_t$, so they were guessed wrongly: there are at most $\err$ of them, and at most $n-a_t$. Hence at most $\tol$ members are bothered, and the initiator announces.
+Suppose that both conditions hold, and fix any set of at most $\err$ wrong guesses and any order. Of the $a_t-1$ interested members other than the initiator, at most $\err$ are guessed not interested, so at least $a_t-1-\err \ge k-1$ of them are told, unless $k-1$ told members said yes earlier; either way, $k-1$ told members say yes, and the activity happens. The bothered members are told members who are not interested, so their agents guessed wrong: there are at most~$\err$ of them, and at most~$n-a_t$. Hence at most~$\tol$ members are bothered, and the initiator posts.
 
-Suppose $a_t < k + \err$. Let $\min(\err, a_t-1)$ members of $A_t$ other than the initiator be guessed not to accept. Then at most $\max(0, a_t-1-\err) < k-1$ others are invited and accept, so the group does not form, and the initiator does not announce.
+Suppose that $a_t < k + \err$. Let $\min(\err, a_t-1)$ interested members other than the initiator be guessed not interested. Then at most $\max(0, a_t-1-\err) < k-1$ others are told and say yes, so the activity does not happen, and the initiator does not post.
 
-Suppose $\min(\err, n-a_t) > \tol$ and $a_t \ge k+\err$. Let $\min(\err, n-a_t)$ members outside $A_t$ be guessed to accept, all other guesses be right, and the order invite them first. All of them are invited before the $(k-1)$-st acceptance, so they are all bothered, which is more than $\tol$. So the initiator does not announce.
+Suppose that $\min(\err, n-a_t) > \tol$ and $a_t \ge k+\err$. Let $\min(\err, n-a_t)$ members who are not interested be guessed interested, let all other guesses be right, and let the order tell them first. All of them are told before the $(k-1)$-st yes, so all of them are bothered, which is more than~$\tol$. So the initiator does not post.
 \end{proof}
 
 \begin{corollary}\label{cor:agora}
-If $\err \le \tol$, then in the agora type~$t$ forms if and only if $a_t \ge k+\err$. In a growing community, a type with share~$s$ forms for every $n \ge \frac{k+\err}{s}$; so the number of groups formed is nondecreasing in~$n$, and every type eventually forms.
+If $\err \le \tol$, then in the agora activity~$t$ happens if and only if $a_t \ge k+\err$. In a growing community, an activity with share~$s$ happens for every $n \ge \frac{k+\err}{s}$; hence the number of activities that happen is nondecreasing in~$n$, and every activity eventually happens.
 \end{corollary}
 \begin{proof}
 If $\err \le \tol$, then $\min(\err, n-a_t) \le \err \le \tol$, so Theorem~\ref{thm:agora} leaves only $a_t \ge k+\err$. Since $k+\err$ is an integer, $\lfloor sn \rfloor \ge k+\err$ if and only if $n \ge \frac{k+\err}{s}$.
 \end{proof}
 
-\begin{remark}
-The cost of broadcast grows with~$n$, while the cost of the agora is at most $\err$, whatever $n$ is. Errors delay groups: with $\err>0$, a type forms in the agora only from a larger size than it needs, so in small communities broadcast can form more groups. With $\err = 0$, the agora forms every type with $a_t \ge k$, at every size.
-\end{remark}
+With $\err = 0$, an activity happens in the agora at every size at which it has $k$~interested members, which is the most any channel can achieve. Errors delay activities: with $\err > 0$, an activity needs~$\err$ more interested members, so in small communities broadcast can make more activities happen than an agora with errors.
 
-\begin{remark}
-A random version, where each member accepts~$t$ independently with probability~$s_t$ and each guess is wrong independently, gives the same two shapes in expectation.
-\end{remark}
+The agents can also act at the receiving end: the initiator posts to everyone, and each member's agent shows the post to its member only if it guesses that the member is interested.
+
+\begin{proposition}\label{prop:filter}
+With receiver-side filtering, activity~$t$ happens if and only if $a_t \ge k + \err$ and $\min(\err, n-a_t) \le \tol$, as in Theorem~\ref{thm:agora}.
+\end{proposition}
+\begin{proof}
+The members who see the post are exactly the members guessed interested. The argument is the proof of Theorem~\ref{thm:agora} with every guessed member told, so the order plays no role: at least $a_t-1-\err$ interested others see the post, at most $\min(\err, n-a_t)$ uninterested members see it, and both bounds are attained by some set of at most $\err$ wrong guesses.
+\end{proof}
+
+So what matters is not who sends what to whom, but that a member's attention is spent only on what its agent finds relevant.
 
 \section{Example}
-For one activity: with share $10\%$, $k=4$ and $\tol=50$, broadcast forms the group exactly for $n$ from $40$ to $55$, and the agora with $\err=0$ for every $n \ge 40$.
+Figure~\ref{fig:example} takes $300$~activities with shares $s_t = 0.5/t$, $k=4$ and $\tol=150$. Under broadcast, only the $19$~activities with share at least $\frac{4}{154}$ ever happen; the number of activities that happen peaks at $19$, for $n$ from $152$ to $154$, and is zero for every $n > 300$. In the agora with $\err=0$, all $300$~activities happen from $n = 2{,}400$ on; with $\err = 10$, from $n = 8{,}400$ on.
 
-Take $300$~types with shares $s_t = 0.5/t$, $k=4$ and $\tol=150$. Under broadcast, only the $19$~types with share at least $\frac{4}{154}$ ever form; the number of groups peaks at $19$, for $n$ from $152$ to $154$, and is zero for every $n>300$. In the agora with $\err = 0$, every type with $a_t \ge 4$ forms, and all $300$~types form from $n=2400$ on; with $\err = 10$, the number of groups is nondecreasing, smaller than under broadcast for small~$n$, and reaches all $300$~types from $n = 8400$ on.
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{scale.pdf}
+\caption{$300$~activities with shares $0.5/t$, $k=4$, $\tol=150$. (a)~For the $24$ most popular activities, the community sizes at which each happens: under broadcast, a window, empty for activities below share $\frac{4}{154}$; in the agora with $\err=0$, every size from the first one on. (b)~The number of activities that happen.}
+\label{fig:example}
+\end{figure}
 
-All statements were also checked by brute force: for every community of up to $7$~members, every $k \in \{2,3,4\}$, $\err \in \{0,1,2\}$ and $\tol \in \{0,1,2,3,5\}$, enumerating every pattern of wrong guesses and every order ($1{,}215$ cases, no mismatch), and the corollaries on $400$~shares.
+All statements were also checked by brute force: for every community of up to $7$~members, every $k \in \{2,3,4\}$, $\err \in \{0,1,2\}$ and $\tol \in \{0,1,2,3,5\}$, over every set of wrong guesses and every order, the posting decisions in broadcast, in the agora, and with receiver-side filtering agree with Theorems~\ref{thm:broadcast} and~\ref{thm:agora} and Proposition~\ref{prop:filter} ($1{,}215$ cases); and Corollary~\ref{cor:broadcast} on $400$~shares.
 
+\section{Related Work}
+Several lines of work study parts of this setting.
+
+\paragraph{Attention as a shared resource.}
+Anderson and de Palma model the attention of message receivers as a common property resource that senders over-use, so that too many messages, or the wrong ones, are sent~\cite{anderson2009congestion}. Falkinger shows that when attention is scarce, a wider reach raises the minimal signal strength needed to be noticed and lowers aggregate diversity~\cite{falkinger2005attention}. Our model shares the view of attention as the scarce resource; it adds activities that need a minimum number of participants, and its results are about community size.
+
+\paragraph{Critical mass.}
+Oliver and Marwell argue that larger groups are more likely to contain a critical mass of interested members, and that the few interested members of a large group may find it hard to find one another and coordinate; they ask whether some social mechanism connects enough of them~\cite{oliver1988paradox}. Our model makes this argument formal for one channel, and the agora is such a mechanism.
+
+\paragraph{Group activity selection.}
+In the group activity selection problem, agents approve pairs of an activity and a group size, each agent joins at most one activity, and a central authority that knows the preferences assigns agents to activities~\cite{darmann2012gasp}. Our model has a minimum group size as well, but no central knowledge: the question is how the interested members are reached, and at what cost to the others.
+
+\section{Outlook}
+Three extensions seem natural. First, a game-theoretic version, in which initiators decide whether to post and members decide whether to mute, would derive the tolerance from behavior instead of fixing it. Second, members of the agora also have limited attention for invitations; a budget of invitations per member would make the comparison with broadcast tighter. Third, federations of communities would let an activity try a small community first and move to a larger one only when needed, which the window of Corollary~\ref{cor:broadcast} suggests is valuable even under broadcast.
+
+\bibliographystyle{plain}
+\bibliography{refs}
 \end{document}
