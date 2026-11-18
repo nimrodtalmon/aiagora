@@ -12,3 +12,8 @@ paper/*.out
 !runs/pick_one.csv
 !runs/pick_one.png
 research_notes/
+paper/scale/*.aux
+paper/scale/*.log
+paper/scale/*.fls
+paper/scale/*.fdb_latexmk
+paper/scale/*.out

@@ -1,0 +1,89 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage[hidelinks]{hyperref}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+\newcommand{\err}{\mathit{err}}
+\newcommand{\bother}{\mathit{bother}}
+\title{The Scale Paradox: Model and Results}
+\author{Nimrod Talmon\\ Ben-Gurion University}
+\date{Draft, November 18, 2026}
+\begin{document}
+\maketitle
+
+\section{Model}
+We define the setting, the two channels, and the objective.
+
+\begin{definition}[Setting]
+There are $n$~members and a set of activity types. Each member accepts type~$t$ independently with probability~$p_t \in (0,1)$, the \emph{popularity} of~$t$. Each type~$t$ has one \emph{initiator}, a member who accepts~$t$. The group of type~$t$ \emph{forms} if at least $k \ge 2$ members who accept~$t$ are reached; the initiator counts as reached. A reached member who does not accept~$t$ is \emph{bothered}.
+\end{definition}
+
+\begin{definition}[Announcement]
+The initiator of~$t$ gains $B>0$ if the group forms and pays $c>0$ for each bothered member. It announces~$t$ if and only if
+\[ B \cdot \Pr[\text{$t$ forms}] \;\ge\; c \cdot \mathbb{E}[\text{number bothered}]. \]
+\end{definition}
+
+\begin{definition}[Channels]
+In \emph{broadcast}, an announcement reaches all other $n-1$~members.
+In the \emph{agora}, each member's agent guesses whether its member accepts~$t$, and the guess is wrong with probability~$\err \in (0,1)$, independently across members. The initiator's agent invites the members guessed to accept, one at a time in a uniformly random order, and stops once $k-1$~invited members accepted. Each invited member is reached.
+\end{definition}
+
+\begin{definition}[Objective]
+The \emph{welfare} is the expected number of groups formed: the sum, over announced types~$t$, of $\Pr[\text{$t$ forms}]$.
+\end{definition}
+
+\begin{remark}
+The cost~$c$ models the social cost of bothering people (fear of spamming); a member may also be thought of as muting a channel that bothers it too often.
+\end{remark}
+
+\section{Broadcast}
+\begin{theorem}\label{thm:broadcast}
+In broadcast:
+\begin{enumerate}
+\item type~$t$ is announced only if $(1-p_t)(n-1) \le B/c$;
+\item hence if $p_t \le \bar p < 1$ for every type~$t$, then no group forms once $n > 1 + \frac{B}{c(1-\bar p)}$;
+\item if $n<k$, then no group forms; if $n=k$, then type~$t$ is announced if and only if $B p_t^{\,k-1} \ge c\,(k-1)(1-p_t)$.
+\end{enumerate}
+\end{theorem}
+\begin{proof}
+A broadcast reaches all $n-1$ others, and each of them is bothered with probability $1-p_t$, so the expected number bothered is $(1-p_t)(n-1)$. Since $\Pr[\text{$t$ forms}] \le 1$, announcing requires $B \ge c(1-p_t)(n-1)$, which is item~1. Item~2 follows from item~1, since $(1-p_t)(n-1) \ge (1-\bar p)(n-1) > B/c$ for every~$t$. For item~3: if $n<k$, then fewer than $k$~members exist. If $n=k$, then $t$ forms if and only if all $k-1$ others accept, which has probability $p_t^{\,k-1}$, and the expected number bothered is $(k-1)(1-p_t)$.
+\end{proof}
+
+So, if $B/c$ is large enough for some type, then the number of groups formed under broadcast is zero for small~$n$, positive at~$n=k$, and zero again for large~$n$. The bound in item~1 binds earlier for types with small~$p_t$: niche groups are the first to disappear.
+
+\section{Agora}
+For type~$t$, let
+\[ r_t = \frac{p_t(1-\err)}{p_t(1-\err)+(1-p_t)\err}, \qquad \bother_t = (k-1)\,\frac{1-r_t}{r_t}. \]
+Here $r_t$ is the probability that an invited member accepts~$t$.
+
+\begin{theorem}\label{thm:agora}
+In the agora, for every type~$t$:
+\begin{enumerate}
+\item for every~$n$, the expected number bothered is at most $\bother_t$;
+\item $\Pr[\text{$t$ forms}]$ is nondecreasing in~$n$ and tends to~$1$ as $n \to \infty$;
+\item hence if $\bother_t < B/c$, then $t$ is announced and forms with probability tending to~$1$ for all large enough~$n$; if $\bother_t > B/c$, then $t$ is not announced for all large enough~$n$.
+\end{enumerate}
+Consequently, as $n \to \infty$, the welfare tends to the number of types~$t$ with $\bother_t < B/c$ (when no type has equality).
+\end{theorem}
+\begin{proof}
+Each other member is guessed to accept~$t$ independently with probability $q_t = p_t(1-\err)+(1-p_t)\err$, and, given that, accepts~$t$ with probability~$r_t$, independently. So, in the random order, the invited candidates form a sequence of independent trials with success probability~$r_t$, cut at a length $M \sim \mathrm{Bin}(n-1, q_t)$. Let $T$ be the index of the $(k-1)$-st success in the infinite sequence. The members invited are the first $\min(M,T)$ candidates, and the bothered ones are the failures among them.
+
+Item~1: the failures among the first $\min(M,T)$ trials are at most the failures among the first~$T$ trials, whose expectation is the negative binomial mean $(k-1)(1-r_t)/r_t = \bother_t$.
+
+Item~2: $t$ forms if and only if $T \le M$. As $n$ grows, $M$ grows stochastically, and $\Pr[T \le M] \to 1$ since $M \to \infty$ in probability.
+
+Item~3: if $\bother_t < B/c$, then by items~1 and~2 there is $n_t$ such that $B \Pr[\text{$t$ forms}] \ge c\,\bother_t \ge c\,\mathbb{E}[\text{number bothered}]$ for all $n \ge n_t$, so $t$ is announced. If $\bother_t > B/c$, then the number bothered increases to the failures among the first~$T$ trials as $M \to \infty$, so by monotone convergence its expectation tends to $\bother_t$, and $c\,\mathbb{E}[\text{number bothered}] > B \ge B \Pr[\text{$t$ forms}]$ for all large~$n$.
+\end{proof}
+
+\begin{remark}
+The cost of broadcast grows with~$n$, while the cost of routing is bounded by $\bother_t$, which depends on $k$, $p_t$ and $\err$ but not on~$n$. With $\err \to 0$, $\bother_t \to 0$, and every type is eventually announced.
+\end{remark}
+
+\section{Simulation}
+We take $300$~types with $p_t = 0.5/t$, $k=4$ and $B/c=100$, and compute all expectations exactly. Under broadcast, the welfare peaks at about $9.4$~groups at $n=84$ and is zero for every $n>201$, as Theorem~\ref{thm:broadcast} gives. In the agora, the welfare grows with~$n$ and tends to $150$~groups with $\err=0.1$ and to $39$~groups with $\err=0.3$, as Theorem~\ref{thm:agora} gives. Exact formulas agree with direct sampling up to $0.005$.
+
+\end{document}

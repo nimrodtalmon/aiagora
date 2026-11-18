@@ -117,7 +117,7 @@ TITLE = f'''<section class="slide dark center">
 
 slides = [TITLE]
 S = slides.append
-n, k, B, c, eps = I('n'), I('k'), I('B'), I('c'), I(r'\varepsilon')
+n, k, B, c, err = I('n'), I('k'), I('B'), I('c'), I(r'\mathit{err}')
 
 S(f"""<section class="slide light">
   <p class="eyebrow">Motivation</p>
@@ -136,27 +136,29 @@ S(thm('Model', f'Initiatives that need {k} members',
 
 S(thm('Model', 'Two channels',
       f"""<p><b>Broadcast:</b> an announcement reaches all other {M('n-1')} members.</p>
-<p><b>Agora:</b> each member's agent guesses whether its member accepts {M('t')}, wrong with probability {eps}. The initiator's agent invites, in random order, only members guessed to accept, and stops at {M('k-1')} acceptances.</p>
+<p><b>Agora:</b> each member's agent guesses whether its member accepts {M('t')}, wrong with probability {err}. The initiator's agent invites, in random order, only members guessed to accept, and stops at {M('k-1')} acceptances.</p>
 <p><b>Benchmark:</b> types with at least {k} acceptors (viable).</p>""",
       'Orange: accepts. In the agora, agents guess wrong once each way.',
       channel_vis(), stack=True, pic_h=230))
 
-S(thm('Theorem 1', 'Broadcast: groups rise, then vanish',
+S(thm('Theorem 1', 'Broadcast: groups appear, then vanish',
       f"""<p>In broadcast, type {M('t')} is announced only if {M(r'(1-p_t)(n-1) \le \tfrac{B}{c}')}.</p>
-<p>So if all {M(r'p_t \le \bar p < 1')}, then no group forms once {M(r'n > 1 + \tfrac{B}{c(1-\bar p)}')}.</p>""",
-      f"""<p>Expected bothered: {M(r'(1-p_t)(n-1)')}, while {M(r'\Pr[\text{forms}] \le 1')}.</p><p>Niche types drop out first.</p>""",
+<p>So if all {M(r'p_t \le \bar p < 1')}, then no group forms once {M(r'n > 1 + \tfrac{B}{c(1-\bar p)}')}.</p>
+<p>At {M('n=k')}, {M('t')} is announced iff {M(r'B\,p_t^{\,k-1} \ge c\,(k-1)(1-p_t)')}.</p>""",
+      f"""<p>Expected bothered: {M(r'(1-p_t)(n-1)')}, while {M(r'\Pr[\text{forms}] \le 1')}. Niche types drop out first.</p>""",
       chart_vis(('broadcast',), YM=10, ticks=(0, 5, 10), vline=(201, 'n = 201'))))
 
 S(thm('Theorem 2', f'Agora: groups keep forming as {n} grows',
-      f"""<p>Let {M('r_t')} be the chance that an invited member accepts. As {M(r'n \to \infty')}, type {M('t')} forms with probability tending to 1 if {M(r'(k-1)\tfrac{1-r_t}{r_t} < \tfrac{B}{c}')}; if {M('>')}, never announced.</p>""",
-      f"""<p>{M(r'r_t = \tfrac{p_t(1-\varepsilon)}{p_t(1-\varepsilon)+(1-p_t)\varepsilon}')}. </p><p>Inviting stops at {M('k-1')} yeses, so the number bothered does not grow with {n}.</p>""",
+      f"""<p>Let {M(r'\mathit{bother}_t = (k-1)\tfrac{1-r_t}{r_t}')}. For every {n}, at most {M(r'\mathit{bother}_t')} members are bothered in expectation.</p>
+<p>So if {M(r'\mathit{bother}_t < \tfrac{B}{c}')}, then for all large {n}, {M('t')} is announced and forms with probability tending to 1.</p>""",
+      f"""<p>{M('r_t')}: the chance an invited member accepts. Inviting stops at {M('k-1')} yeses, so the noes are at most negative binomial, for any {n}.</p>""",
       chart_vis(('agora_01', 'agora_03'), YM=160, ticks=(0, 50, 100, 150), hlines=((150, 'limit 150'), (39, 'limit 39')))))
 
 S(thm('Simulation', 'Peak for broadcast, growth for the agora',
       f"""<p>300 types, {M(r'p_t = \tfrac{0.5}{t}')}, {M('k=4')}, {M(r'\tfrac{B}{c} = 100')}.</p>
-<p>Broadcast peaks at 9 groups at 80 members, and has none from 201 on.</p>
-<p>The agora tends to 150 and 39 groups.</p>""",
-      '<p>Broadcast: exact. Agora: 400 runs per type.</p>',
+<p>Broadcast peaks at 9.4 groups at 84 members; none above 201.</p>
+<p>The agora tends to 150 and 39 groups, for {M(r'\mathit{err}')} of 0.1 and 0.3.</p>""",
+      '<p>All expectations exact; they match direct sampling within 0.005.</p>',
       chart_vis()))
 
 S(f'''<section class="slide light">
@@ -170,7 +172,7 @@ S('''<section class="slide light">
   <p class="eyebrow">Summary</p>
   <h2>Broadcast cost grows with \\(n\\); routing cost with \\(k\\)</h2>
   <div class="rows ruled">
-    <div class="row"><span class="n">1</span><p>Broadcast: groups rise with size, then vanish; niche groups go first</p></div>
+    <div class="row"><span class="n">1</span><p>Broadcast: groups appear, then vanish as size grows; niche ones first</p></div>
     <div class="row"><span class="n">2</span><p>Agora: groups keep forming; agent accuracy sets how many</p></div>
     <div class="row"><span class="n">3</span><p>Open: a per-member budget of invitations; strategic initiators</p></div>
     <div class="row"><span class="n">4</span><p>Next: federation — try locally, escalate only when needed</p></div>
