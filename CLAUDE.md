@@ -21,5 +21,5 @@ A simulation framework (later also a live web app) for AI-Agora. Not related to 
 - The explainer at /agora/ is a deck built by `web/deck/src/build.py` (never hand-edit `web/deck/index.html`); it uses the zutot deck engine copied to `web/deck/assets/` (arrows change slides, 1/2 drive demos, Esc goes home, no notes key). Its demos replay real runs of `agora/pick_one.py`.
 - Research briefs: `web/brief/` (current results, at /brief/) and `web/directions/` (at /directions/), both built from `src/build.py` with the shared kit `web/kit.py`.
 - `paper/` holds LaTeX: `paper/main.tex` (pick-one seed; figure from `experiments/pick_one_plot.py`) and `paper/scale/main.tex` (the scale paradox: model, theorems, proofs).
-- The scale paradox model is analytic (`agora/scale.py`, exact expectations, outside the engine); `experiments/scale.py` makes the curves, `experiments/scale_check.py` checks the theorems and the formulas against sampling.
+- The scale paradox model is analytic and outside the engine: `agora/scale.py` (deterministic worst-case model, closed forms plus the processes themselves), `experiments/scale.py` (exact counts for the brief), `experiments/scale_check.py` (brute-force check of every theorem). The earlier random version is kept in `agora/scale_random.py`.
 - `runs/` holds outputs; only small headline results are committed.

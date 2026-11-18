@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Builds web/brief/index.html: research brief on the scale paradox (a broadcast
-channel vs agent routing for forming groups). Uses the shared kit (web/kit.py)
-and the real runs in runs/scale.csv (experiments/scale.py).
+channel vs agent routing for forming groups; deterministic worst-case model).
+Uses the shared kit (web/kit.py) and the exact counts in runs/scale.csv and
+runs/scale_windows.csv (experiments/scale.py).
 
     python3 web/brief/src/build.py
 """
@@ -26,6 +27,8 @@ OUT = os.path.join(HERE, '..', 'index.html')
 DATE = 'November 18, 2026'
 
 RUNS = list(csv.DictReader(open(os.path.join(ROOT, 'runs', 'scale.csv'))))
+WIN = list(csv.DictReader(open(os.path.join(ROOT, 'runs', 'scale_windows.csv'))))
+K, R = 4, 150
 
 
 def thm(*a, wide=False, **kw):
@@ -54,39 +57,74 @@ def channel_vis():
     return svg(w, h, b)
 
 
-def chart_vis(which=('viable', 'agora_01', 'agora_03', 'broadcast'), YM=300, ticks=(0, 100, 200, 300), vline=None, hlines=(), w=1000):
-    h = 640
-    X0, X1, Y0, Y1 = 130, w - 140, 540, 50
-    lx = lambda n: X0 + (math.log(n) - math.log(10)) / (math.log(2560) - math.log(10)) * (X1 - X0)
-    Y = lambda v: Y0 - min(v, YM) / YM * (Y0 - Y1)
+NMIN, NMAX = 4, 20000
+
+
+def _lx(n, X0, X1, nmax=NMAX):
+    return X0 + (math.log(min(n, nmax)) - math.log(NMIN)) / (math.log(nmax) - math.log(NMIN)) * (X1 - X0)
+
+
+def _xaxis(X0, X1, Y0, label=True, nmax=NMAX):
     b = ''
-    for v in ticks:
+    for n in (4, 10, 40, 100, 400, 1000, 4000, 20000):
+        if n <= nmax:
+            b += text(_lx(n, X0, X1, nmax), Y0 + 38, f'{n:,}', 24, GR)
+    if label:
+        b += text((X0 + X1) / 2, Y0 + 80, 'community size n (members)', 28, GR, weight=700)
+    return b
+
+
+def windows_vis(kind, rows=24, w=1000, nmax=1000):
+    """One row per type (largest share on top): the sizes n at which it forms."""
+    X0, X1, top, rh = 150, w - 30, 30, 20
+    lx = lambda n: _lx(n, X0, X1, nmax)
+    Y0 = top + rows * rh + 8
+    b = f'<line x1="{X0}" y1="{Y0}" x2="{X1}" y2="{Y0}" stroke="{GL}" stroke-width="2"/>'
+    thr_drawn = False
+    for r in WIN[:rows]:
+        t, s = int(r['t']), float(r['share'])
+        y = top + (t - 1) * rh
+        if kind == 'broadcast':
+            if r['b_lo']:
+                x0, x1 = lx(int(r['b_lo'])), lx(int(r['b_hi']))
+                b += f'<rect x="{x0:.0f}" y="{y+3}" width="{max(6, x1-x0):.0f}" height="{rh-6}" rx="4" fill="{DK}"/>'
+            elif not thr_drawn:
+                thr_drawn = True
+                b += f'<line x1="{X0}" y1="{y-1}" x2="{X1}" y2="{y-1}" stroke="{OR}" stroke-width="3" stroke-dasharray="10 8"/>'
+                b += text(X0 + 10, y + 30, 'below the line:', 24, OR, 'start', 700)
+                b += text(X0 + 10, y + 58, 'never forms', 24, OR, 'start', 700)
+        else:
+            x0 = lx(int(r['agora10_from']))
+            b += f'<rect x="{x0:.0f}" y="{y+3}" width="{X1-x0:.0f}" height="{rh-6}" rx="4" fill="{OR}"/>'
+    b += text(X0 - 14, top + 14, 'share 0.5', 22, GR, 'end')
+    b += text(X0 - 14, top + (rows - 1) * rh + 14, f'0.5/{rows}', 22, GR, 'end')
+    b += text(40, top + rows * rh / 2, 'types', 26, GR, weight=700, extra=f'transform="rotate(-90 40 {top + rows*rh/2})"')
+    b += _xaxis(X0, X1, Y0, nmax=nmax)
+    return svg(w, Y0 + 92, b)
+
+
+def counts_vis(w=1000, h=640):
+    X0, X1, Y0, Y1 = 120, w - 200, 540, 50
+    YM = 300
+    Y = lambda v: Y0 - v / YM * (Y0 - Y1)
+    b = ''
+    for v in (0, 100, 200, 300):
         b += f'<line x1="{X0}" y1="{Y(v):.0f}" x2="{X1}" y2="{Y(v):.0f}" stroke="#E6E5E0" stroke-width="2"/>'
-        b += text(X0 - 16, Y(v) + 10, str(v), 26, GR, 'end')
-    for n in (10, 40, 160, 640, 2560):
-        b += text(lx(n), Y0 + 40, str(n), 26, GR)
-    b += text((X0 + X1) / 2, Y0 + 84, 'community size n (members)', 28, GR, weight=700)
-    b += text(34, (Y0 + Y1) / 2, 'groups formed', 28, GR, weight=700, extra=f'transform="rotate(-90 34 {(Y0+Y1)/2})"')
-    if vline:
-        x = lx(vline[0])
-        b += f'<line x1="{x:.0f}" y1="{Y1}" x2="{x:.0f}" y2="{Y0}" stroke="{OR}" stroke-width="3" stroke-dasharray="10 8"/>'
-        b += text(x + 12, Y1 + 30, vline[1], 26, OR, 'start', 700)
-    for v, lab in hlines:
-        b += f'<line x1="{X0}" y1="{Y(v):.0f}" x2="{X1}" y2="{Y(v):.0f}" stroke="{OR}" stroke-width="3" stroke-dasharray="10 8"/>'
-        b += text(X0 + 10, Y(v) - 12, lab, 26, OR, 'start', 700)
-    series = {'viable': (GL, 'viable', True), 'agora_01': (OR, 'agora, 10% wrong', False),
-              'agora_03': ('#E8B07A', 'agora, 30% wrong', False), 'broadcast': (DK, 'broadcast', False)}
-    for key in which:
-        col, lab, dash = series[key]
-        pts = [(lx(int(r['n'])), Y(float(r[key]))) for r in RUNS]
-        da = ' stroke-dasharray="10 8"' if dash else ''
-        b += f'<polyline fill="none" stroke="{col}" stroke-width="5"{da} points="' + ' '.join(f'{x:.0f},{y:.0f}' for x, y in pts) + '"/>'
-        if not dash:
-            for x, y in pts:
-                b += f'<circle cx="{x:.0f}" cy="{y:.0f}" r="6" fill="{col}" stroke="#fff" stroke-width="2"/>'
-        x, y = pts[-1]
-        b += text(x + 14, y + 9, lab, 26, DK, 'start', 700)
-    return svg(w + 120, h, b)
+        b += text(X0 - 14, Y(v) + 9, str(v), 24, GR, 'end')
+    b += _xaxis(X0, X1, Y0)
+    b += text(30, (Y0 + Y1) / 2, 'groups formed', 26, GR, weight=700, extra=f'transform="rotate(-90 30 {(Y0+Y1)/2})"')
+    for key, col, lab in (('agora_err0', OR, 'agora, err = 0'), ('agora_err10', '#E8B07A', 'agora, err = 10'), ('broadcast', DK, 'broadcast')):
+        pts = [(_lx(int(r['n']), X0, X1), Y(float(r[key]))) for r in RUNS]
+        b += f'<polyline fill="none" stroke="{col}" stroke-width="5" stroke-linejoin="round" points="' + ' '.join(f'{x:.1f},{y:.1f}' for x, y in pts) + '"/>'
+        if key == 'broadcast':
+            x, y = pts[-1]
+            b += text(x + 14, y + 9, lab, 26, DK, 'start', 700)
+        else:
+            tgt = 150 if key == 'agora_err0' else 100
+            r = next(r for r in RUNS if float(r[key]) >= tgt)
+            x, y = _lx(int(r['n']), X0, X1), Y(float(r[key]))
+            b += text(x - 14 if key == 'agora_err0' else x + 14, y, lab, 26, DK, 'end' if key == 'agora_err0' else 'start', 700)
+    return svg(w, h, b)
 
 
 def evidence():
@@ -127,39 +165,38 @@ S(f"""<section class="slide light">
 </section>""")
 
 S(thm('Model', f'Initiatives that need {k} members',
-      f"""<p>{n} members, activity types {M('t')}. A member accepts {M('t')} with probability {M('p_t')} (<b>popularity</b>), independently.</p>
-<p>Type {M('t')} has an <b>initiator</b> who accepts it. Its group forms if at least {k} reached members accept.</p>
-<p>The initiator gains {B} if it forms, and pays {c} per reached member who does not accept (<b>bothered</b>). It announces iff</p>
-<p class="eq">{M(r'B \cdot \Pr[\text{forms}] \ \ge\  c \cdot \mathbb{E}[\text{bothered}]')}</p>""",
+      f"""<p>{n} members. For each type {M('t')}, {M('a_t')} members accept it (the set {M('A_t')}); one is its <b>initiator</b>.</p>
+<p>The group forms if at least {k} members of {M('A_t')} are reached; a reached non-member of {M('A_t')} is <b>bothered</b>.</p>
+<p>Gain {B} if it forms; cost {c} per bothered. Knowing {M('a_t')}, the initiator announces iff, in the worst case, it forms and {M(r'B \ge c \cdot \text{bothered}')}.</p>""",
       f'<b>Welfare:</b> groups formed. The cost {c} is social: fear of spamming.',
       kit.card_vis(), wide=True))
 
-S(thm('Model', 'Two channels',
+S(thm('Model', 'Two channels, and a growing community',
       f"""<p><b>Broadcast:</b> an announcement reaches all other {M('n-1')} members.</p>
-<p><b>Agora:</b> each member's agent guesses whether its member accepts {M('t')}, wrong with probability {err}. The initiator's agent invites, in random order, only members guessed to accept, and stops at {M('k-1')} acceptances.</p>
-<p><b>Benchmark:</b> types with at least {k} acceptors (viable).</p>""",
-      'Orange: accepts. In the agora, agents guess wrong once each way.',
-      channel_vis(), stack=True, pic_h=230))
+<p><b>Agora:</b> agents guess whether their members accept {M('t')}; at most {err} guesses per type are wrong. The initiator's agent invites members guessed to accept, in any order, until {M('k-1')} accept.</p>
+<p><b>Growing community:</b> type {M('t')} has a share {M('s_t')}; with {n} members, {M(r'a_t = \lfloor s_t n \rfloor')}.</p>""",
+      'Orange: accepts. In the agora, two guesses are wrong.',
+      channel_vis(), stack=True, pic_h=210))
 
-S(thm('Theorem 1', 'Broadcast: groups appear, then vanish',
-      f"""<p>In broadcast, type {M('t')} is announced only if {M(r'(1-p_t)(n-1) \le \tfrac{B}{c}')}.</p>
-<p>So if all {M(r'p_t \le \bar p < 1')}, then no group forms once {M(r'n > 1 + \tfrac{B}{c(1-\bar p)}')}.</p>
-<p>At {M('n=k')}, {M('t')} is announced iff {M(r'B\,p_t^{\,k-1} \ge c\,(k-1)(1-p_t)')}.</p>""",
-      f"""<p>Expected bothered: {M(r'(1-p_t)(n-1)')}, while {M(r'\Pr[\text{forms}] \le 1')}. Niche types drop out first.</p>""",
-      chart_vis(('broadcast',), YM=10, ticks=(0, 5, 10), vline=(201, 'n = 201'))))
+S(thm('Theorem 1', 'Broadcast: each type forms only in a window',
+      f"""<p>In broadcast, type {M('t')} forms iff {M(r'a_t \ge k')} and {M(r'n - a_t \le \tfrac{B}{c}')}.</p>
+<p>So a type with share {M('s')} forms only for {n} in an interval inside {M(r'\big[\tfrac{k}{s}, \tfrac{B}{c(1-s)}\big]')}.</p>
+<p>If {M(r's < \tfrac{k}{k+B/c}')}, it never forms.</p>""",
+      f"<p>It bothers exactly {M(r'n - a_t')} members; both conditions are monotone.</p>",
+      windows_vis('broadcast')))
 
-S(thm('Theorem 2', f'Agora: groups keep forming as {n} grows',
-      f"""<p>Let {M(r'\mathit{bother}_t = (k-1)\tfrac{1-r_t}{r_t}')}. For every {n}, at most {M(r'\mathit{bother}_t')} members are bothered in expectation.</p>
-<p>So if {M(r'\mathit{bother}_t < \tfrac{B}{c}')}, then for all large {n}, {M('t')} is announced and forms with probability tending to 1.</p>""",
-      f"""<p>{M('r_t')}: the chance an invited member accepts. Inviting stops at {M('k-1')} yeses, so the noes are at most negative binomial, for any {n}.</p>""",
-      chart_vis(('agora_01', 'agora_03'), YM=160, ticks=(0, 50, 100, 150), hlines=((150, 'limit 150'), (39, 'limit 39')))))
+S(thm('Theorem 2', f'Agora: once a type forms, it keeps forming',
+      f"""<p>In the agora, type {M('t')} forms iff {M(r'a_t \ge k + \mathit{err}')} and {M(r'c \cdot \min(\mathit{err},\, n - a_t) \le B')}.</p>
+<p>So if {M(r'\mathit{err} \le \tfrac{B}{c}')}, a type with share {M('s')} forms for every {M(r'n \ge \tfrac{k+\mathit{err}}{s}')}.</p>""",
+      f"<p>Always {M('k-1')} acceptors invited, at most {err} members bothered; both bounds tight.</p>",
+      windows_vis('agora')))
 
-S(thm('Simulation', 'Peak for broadcast, growth for the agora',
-      f"""<p>300 types, {M(r'p_t = \tfrac{0.5}{t}')}, {M('k=4')}, {M(r'\tfrac{B}{c} = 100')}.</p>
-<p>Broadcast peaks at 9.4 groups at 84 members; none above 201.</p>
-<p>The agora tends to 150 and 39 groups, for {M(r'\mathit{err}')} of 0.1 and 0.3.</p>""",
-      '<p>All expectations exact; they match direct sampling within 0.005.</p>',
-      chart_vis()))
+S(thm('Example', 'Broadcast peaks and dies; the agora grows',
+      f"""<p>300 types with shares {M(r's_t = \tfrac{0.5}{t}')}, and {M('k=4')}, {M(r'\tfrac{B}{c} = 150')}.</p>
+<p><b>Broadcast:</b> 19 types ever form; at most 19 groups (152–154 members); none above 300.</p>
+<p><b>Agora:</b> all 300 from 2,400 members; with {M(r'\mathit{err} = 10')}, from 8,400.</p>""",
+      '<p>Exact counts. Theorems checked by brute force: 1,215 small cases.</p>',
+      counts_vis()))
 
 S(f'''<section class="slide light">
   <p class="eyebrow">Related work</p>
@@ -170,11 +207,11 @@ S(f'''<section class="slide light">
 
 S('''<section class="slide light">
   <p class="eyebrow">Summary</p>
-  <h2>Broadcast cost grows with \\(n\\); routing cost with \\(k\\)</h2>
+  <h2>Broadcast cost grows with \\(n\\); agora cost does not</h2>
   <div class="rows ruled">
-    <div class="row"><span class="n">1</span><p>Broadcast: groups appear, then vanish as size grows; niche ones first</p></div>
-    <div class="row"><span class="n">2</span><p>Agora: groups keep forming; agent accuracy sets how many</p></div>
-    <div class="row"><span class="n">3</span><p>Open: a per-member budget of invitations; strategic initiators</p></div>
+    <div class="row"><span class="n">1</span><p>Broadcast: each type forms only in a window of sizes; niche types never</p></div>
+    <div class="row"><span class="n">2</span><p>Agora: once a type forms, it keeps forming; wrong guesses only delay it</p></div>
+    <div class="row"><span class="n">3</span><p>Open: initiators and members as players (post, mute); invitation budgets</p></div>
     <div class="row"><span class="n">4</span><p>Next: federation — try locally, escalate only when needed</p></div>
   </div>
 </section>''')

@@ -1,79 +1,84 @@
-"""Scale paradox: broadcast channel vs. agent routing (simplest model). Exact.
+"""Scale paradox, deterministic worst-case model.
 
-Setting. n members; activity types t. Each member accepts type t independently
-with probability p_t (popularity). Type t has one initiator, a member who accepts
-it. The group of type t forms if at least k members accept and are reached (the
-initiator counts). The initiator gains B if the group forms and pays c for each
-reached member who does not accept it (bothered). It announces iff
-    B * P(forms) >= c * E[bothered].
-Welfare: expected number of groups formed = sum over announced types of P(forms).
+Setting. A community N of n members; activity types t, each with an acceptance
+set A_t (a_t = |A_t| members accept t) and an initiator in A_t. The group of t
+forms if at least k members of A_t are reached (the initiator counts). A reached
+member outside A_t is bothered. The initiator gains B if the group forms and pays
+c per bothered member. It knows a_t (not who accepts) and announces t iff, in the
+worst case over what it does not know, the group forms and B >= c * bothered.
 
 Broadcast: an announcement reaches all n-1 others.
-Agora: each member's agent guesses whether its member accepts t, wrongly with
-probability eps, independently. The initiator's agent invites the members guessed
-to accept, in uniformly random order, and stops once k-1 of them accepted.
+Agora: each member's agent guesses whether its member accepts t; for each t, at
+most `err` guesses are wrong. The initiator's agent invites the members guessed
+to accept, one at a time in some order (worst case: any order), and stops once
+k-1 invited members accepted.
 
-Every expectation below is computed exactly (no sampling).
+Welfare: the number of groups formed.
 """
+import itertools
 import numpy as np
-from scipy.stats import binom
 
 
-def popularity(T=300, top=0.5, zipf=1.0):
-    return top / np.arange(1, T + 1) ** zipf
+# ---------- closed forms (Theorems 1 and 2) ----------
+def broadcast_forms(n, a, k, B, c):
+    return a >= k and c * (n - a) <= B
 
 
-# ---------- broadcast ----------
-def broadcast_stats(n, p, k):
-    """(P(forms), E[bothered]) for one type under broadcast."""
-    return binom.sf(k - 2, n - 1, p), (1 - p) * (n - 1)
+def agora_forms(n, a, k, B, c, err):
+    return a >= k + err and c * min(err, n - a) <= B
 
 
-# ---------- agora ----------
-def agora_stats(n, p, k, eps):
-    """(P(forms), E[bothered]) for one type under agent routing.
-
-    Each other member is a candidate (guessed to accept) w.p. q, independently;
-    a candidate accepts w.p. r. In random order, candidates form a Bernoulli(r)
-    sequence of length M ~ Bin(n-1, q). With T the position of the (k-1)-th yes,
-    invited = min(M, T), yeses = min(S_M, k-1), bothered = invited - yeses.
-    """
-    q = p * (1 - eps) + (1 - p) * eps
-    r = p * (1 - eps) / q
-    m = np.arange(n)                                     # possible values of M
-    pm = binom.pmf(m, n - 1, q)
-    # E[min(m, T)] = sum_{j<m} P(T > j) = sum_{j<m} P(Bin(j, r) <= k-2)
-    tail = binom.cdf(k - 2, m, r)                        # P(T > j) for j = m
-    e_inv = np.concatenate([[0.0], np.cumsum(tail)[:-1]])
-    # E[min(S_m, k-1)] = (k-1) - sum_{s<k-1} (k-1-s) P(S_m = s)
-    s = np.arange(k - 1)
-    e_yes = (k - 1) - ((k - 1 - s)[None, :] * binom.pmf(s[None, :], m[:, None], r)).sum(1)
-    pform_m = binom.sf(k - 2, m, r)
-    return float(pm @ pform_m), float(pm @ (e_inv - e_yes))
-
-
-def agora_limit_bothered(p, k, eps):
-    """lim_{n->inf} E[bothered] = (k-1)(1-r)/r (negative binomial mean)."""
-    r = p * (1 - eps) / (p * (1 - eps) + (1 - p) * eps)
-    return (k - 1) * (1 - r) / r
-
-
-# ---------- welfare ----------
-def groups(n, ps, k, B, c, eps=None):
-    """Expected number of groups formed; eps=None means broadcast."""
-    tot = 0.0
-    for p in ps:
-        pf, eb = broadcast_stats(n, p, k) if eps is None else agora_stats(n, p, k, eps)
-        if B * pf >= c * eb:
-            tot += pf
+def groups(n, shares, k, B, c, err=None):
+    """Groups formed in a community of n members where type t has floor(s_t n) acceptors."""
+    tot = 0
+    for s in shares:
+        a = int(np.floor(s * n + 1e-9))
+        ok = broadcast_forms(n, a, k, B, c) if err is None else agora_forms(n, a, k, B, c, err)
+        tot += ok
     return tot
 
 
-def viable(n, ps, k):
-    """Benchmark: expected number of types with at least k acceptors (initiator incl.)."""
-    return float(sum(binom.sf(k - 2, n - 1, p) for p in ps))
+def broadcast_window(s, k, B, c, nmax=10**6):
+    """Sizes n at which a type of share s forms under broadcast: an interval (or empty)."""
+    ns = [n for n in range(1, nmax) if broadcast_forms(n, int(np.floor(s * n + 1e-9)), k, B, c)]
+    return (ns[0], ns[-1]) if ns else None
 
 
-def agora_limit(ps, k, B, c, eps):
-    """Theorem 2: number of types with (k-1)(1-r_t)/r_t < B/c."""
-    return int(sum(agora_limit_bothered(p, k, eps) < B / c for p in ps))
+# ---------- the processes themselves (for brute-force checks) ----------
+def run_broadcast(n, A):
+    """(reached acceptors incl. initiator, bothered)."""
+    return len(A), n - len(A)
+
+
+def run_agora(A, guess, order, k, initiator):
+    """Invite guessed members (initiator excluded) in `order` until k-1 accept."""
+    yes, bothered = 0, 0
+    for i in order:
+        if i == initiator or i not in guess:
+            continue
+        if yes == k - 1:
+            break
+        if i in A:
+            yes += 1
+        else:
+            bothered += 1
+    return 1 + yes, bothered
+
+
+def robust_announce_agora(n, A, initiator, k, B, c, err):
+    """Announce iff for every guess pattern with <= err wrong guesses (initiator's own
+    agent is never wrong about it) and every invitation order: forms and B >= c*bothered."""
+    others = [i for i in range(n) if i != initiator]
+    for e in range(err + 1):
+        for wrong in itertools.combinations(others, e):
+            guess = {i for i in others if (i in A) != (i in wrong)}
+            for order in itertools.permutations(sorted(guess)):
+                reached, both = run_agora(A, guess, order, k, initiator)
+                if reached < k or B < c * both:
+                    return False
+    return True
+
+
+def robust_announce_broadcast(n, A, k, B, c):
+    reached, both = run_broadcast(n, A)
+    return reached >= k and B >= c * both
