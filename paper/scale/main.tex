@@ -13,12 +13,12 @@
 \newcommand{\tol}{\mathit{tol}}
 \title{The Scale Paradox: Bigger Group Chats Form Fewer Groups, Unless Agents Route}
 \author{Nimrod Talmon\\ Ben-Gurion University}
-\date{Draft, November 19, 2026}
+\date{Draft, November 21, 2026}
 \begin{document}
 \maketitle
 
 \begin{abstract}
-A family that moves to a new neighborhood looks for people to share activities with: a running group, a book club, a chess evening. Today this happens in one shared group chat, where every post reaches everyone. We model a community in which an activity happens only if enough interested members hear of it, and in which an initiator posts only if the post bothers few uninterested members. We show that with a shared channel, each activity happens only for community sizes within a window, niche activities never happen, and a large enough community forms no group at all. If instead each member has a personal agent that guesses its member's interests and only the members guessed interested are told, then the number of members bothered does not grow with the community, and once an activity can happen it keeps happening as the community grows. When members may instead mute the channel, the outcome is all or nothing: a shared channel dies beyond a certain community size, and agents that wrongly show a member a given share of the posts it does not want push that size out by the inverse of that share.
+A family that moves to a new neighborhood looks for people to share activities with. Today this often happens in one shared group chat, where every post reaches everyone. We model a community in which an activity happens only if enough interested members hear of it, and show that with a shared channel each activity happens only for community sizes within a window, niche activities never happen, and a large enough community forms no group at all; this holds both when initiators avoid bothering others and when members mute the channel. Personal agents that pass a post only to the members they guess are interested remove this limit, or, if they wrongly pass a share of the posts, push it out by the inverse of that share.
 \end{abstract}
 
 \section{Introduction}
@@ -201,7 +201,7 @@ Oliver and Marwell argue that larger groups are more likely to contain a critica
 In the group activity selection problem, agents approve pairs of an activity and a group size, each agent joins at most one activity, and a central authority that knows the preferences assigns agents to activities~\cite{darmann2012gasp}. Our model has a minimum group size as well, but no central knowledge: the question is how the interested members are reached, and at what cost to the others.
 
 \section{Outlook}
-Two extensions seem natural. First, communities in which members differ deserve a sharper analysis than our simulation; in particular, which members mute first. Second, federations of communities would let an activity try a small community first and move to a larger one only when needed, which the window of Corollary~\ref{cor:broadcast} suggests is valuable even under broadcast.
+In our model, agents only decide who sees what; Proposition~\ref{prop:filter} shows that this is what matters for the scale of a community. Agents can do more: they can hold conditional commitments (``I join if at least four others do, on Sunday or Monday'') and combine them across members, which a shared channel cannot. Two further extensions seem natural. First, communities in which members differ deserve a sharper analysis than our simulation; in particular, which members mute first. Second, federations of communities would let an activity try a small community first and move to a larger one only when needed, which the window of Corollary~\ref{cor:broadcast} suggests is valuable even under broadcast.
 
 \bibliographystyle{plain}
 \bibliography{refs}
