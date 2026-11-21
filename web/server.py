@@ -4,7 +4,9 @@
 
 GET /        the explainer deck (web/deck, built by web/deck/src/build.py)
 GET /play    the playground: alone vs together (web/play.html, runs in the browser)
-GET /brief/       research brief: the current results, Problem 1 (web/brief/src/build.py)
+GET /app     neighborhood prototype: group chat vs agora with conditional commitments (web/app.html)
+GET /brief/       research brief: the current results (web/brief/src/build.py)
+GET /scale/       research brief: the scale paradox (web/scale/src/build.py)
 GET /directions/  research brief: directions, evidence, app concept (web/directions/src/build.py)
 
 Standard library only. Links are relative, so the app works under any path
@@ -23,14 +25,18 @@ FILES = {
     "/play": ("play.html", "text/html"),
     "/play/": ("play.html", "text/html"),
     "/brief/": ("brief/index.html", "text/html"),
+    "/scale/": ("scale/index.html", "text/html"),
     "/directions/": ("directions/index.html", "text/html"),
+    "/app": ("app.html", "text/html"),
 }
 
 
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = urlparse(self.path).path
-        if path in ("/brief", "/directions"):       # relative links need the slash
+        if path == "/app/":
+            self.send_response(301); self.send_header("Location", "../app"); self.end_headers(); return
+        if path in ("/brief", "/directions", "/scale"):       # relative links need the slash
             self.send_response(301); self.send_header("Location", path.lstrip("/") + "/"); self.end_headers(); return
         if path in ("/groups", "/groups/"):          # old address of the Problem 1 brief
             self.send_response(301); self.send_header("Location", ("../" if path.endswith("/") else "") + "brief/"); self.end_headers(); return

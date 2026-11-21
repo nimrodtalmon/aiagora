@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agora · neighborhood prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Heebo:wght@300..900&display=swap">
+<style>
+  :root { --dark: #26282C; --light: #F3F3F1; --card: #FDFDFB; --orange: #F7941D; --pale: #FCE8D2;
+          --gray: #5F6368; --gray-light: #B9BCC1; --line: #E2E1DC; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--light); color: var(--dark); font: 16px/1.4 Heebo, Arial, sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 28px 24px 24px; }
+  .bar { width: 64px; height: 6px; background: var(--orange); margin-bottom: 14px; }
+  h1 { font-size: 30px; font-weight: 800; margin: 0 0 4px; }
+  .lead { color: var(--gray); margin: 0 0 20px; }
+  .grid { display: grid; grid-template-columns: 340px 1fr 1fr; gap: 18px; align-items: start; }
+  .card { background: var(--card); border: 2px solid var(--line); border-radius: 18px; padding: 18px; }
+  .card h2 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: var(--gray); font-size: 14px; margin: 0 0 12px; }
+  .lbl { font-weight: 700; font-size: 14px; margin: 14px 0 6px; display: flex; justify-content: space-between; }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 2px solid var(--line); background: #fff; border-radius: 999px; padding: 4px 11px; font: inherit; font-size: 14px; cursor: pointer; }
+  .chip.on { background: var(--orange); border-color: var(--orange); color: #fff; font-weight: 700; }
+  input[type=range] { width: 100%; accent-color: var(--orange); }
+  .big { font-size: 44px; font-weight: 800; line-height: 1; }
+  .big small { font-size: 16px; font-weight: 400; color: var(--gray); margin-left: 6px; }
+  .stats { display: flex; gap: 26px; margin: 6px 0 12px; }
+  .list { height: 360px; overflow-y: auto; border-top: 2px solid var(--line); padding-top: 8px; }
+  .g { display: flex; justify-content: space-between; padding: 6px 4px; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .g.you { background: var(--pale); font-weight: 700; border-radius: 6px; }
+  .none { color: var(--gray); font-size: 15px; padding: 8px 4px; }
+  .you-line { margin-top: 10px; font-size: 15px; min-height: 22px; }
+  .you-line b { color: var(--orange); }
+  .foot { color: var(--gray); font-size: 13px; margin-top: 16px; }
+  .chat .big { color: var(--dark); } .agora .big { color: var(--orange); }
+</style>
+</head>
+<body>
+<main>
+  <div class="bar"></div>
+  <h1>Your neighborhood, two ways</h1>
+  <p class="lead">You and <span id="nn">80</span> simulated neighbors. Tell your agent what you would join; compare the group chat with the agora.</p>
+  <div class="grid">
+    <div class="card">
+      <h2>You</h2>
+      <p class="sub">Your agent keeps this to itself.</p>
+      <div class="lbl">I would join</div>
+      <div class="chips" id="acts"></div>
+      <div class="lbl">on</div>
+      <div class="chips" id="days"></div>
+      <div class="lbl"><span>if at least this many others come</span><span id="thv">3</span></div>
+      <input type="range" id="th" min="0" max="8" value="3">
+      <div class="lbl" style="margin-top:22px"><span>Neighbors who go anyway</span><span id="egv">10%</span></div>
+      <input type="range" id="eg" min="0" max="100" step="5" value="10">
+      <div class="lbl"><span>Neighbors</span><span id="nv">80</span></div>
+      <input type="range" id="n" min="20" max="300" step="10" value="80">
+    </div>
+    <div class="card chat">
+      <h2>Group chat</h2>
+      <p class="sub">People write "I'm in" once enough others already did.</p>
+      <div class="stats"><div class="big" id="cb">0<small>placed</small></div><div class="big" id="cg">0<small>groups</small></div></div>
+      <div class="list" id="cl"></div>
+      <div class="you-line" id="cy"></div>
+    </div>
+    <div class="card agora">
+      <h2>Agora</h2>
+      <p class="sub">Agents hold everyone's conditions and form groups that satisfy them.</p>
+      <div class="stats"><div class="big" id="ab">0<small>placed</small></div><div class="big" id="ag">0<small>groups</small></div></div>
+      <div class="list" id="al"></div>
+      <div class="you-line" id="ay"></div>
+    </div>
+  </div>
+  <p class="foot">Groups need at least 4 people. Each neighbor likes some activities, some days, and comes only if enough others come (2 to 6), except those who go anyway. Simulated neighbors, fixed random seed. Model and theory: <a href="brief/">brief</a>.</p>
+</main>
+<script>
+const ACTS = ['Running', 'Chess', 'Book club', 'Basketball', 'Board games', 'Yoga', 'Choir', 'Pottery', 'Hiking', 'Coding club'];
+const POPS = [0.30, 0.22, 0.16, 0.12, 0.09, 0.07, 0.05, 0.04, 0.03, 0.02];
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const K = 4;
+const me = { acts: new Set([1, 8]), days: new Set([5, 6]), th: 3 };
+
+function rng(seed) { return function () { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// neighbors: per activity, a map member -> {days:Set, th}
+function neighborhood(n, eager) {
+  const r = rng(12345), out = ACTS.map(() => new Map());
+  for (let i = 1; i <= n; i++) {
+    ACTS.forEach((_, t) => {
+      const like = r() < POPS[t], days = new Set();
+      DAYS.forEach((_, d) => { if (r() < 0.4) days.add(d); });
+      if (!days.size) days.add(Math.floor(r() * 7));
+      const isEager = r() < eager, th = 2 + Math.floor(r() * 5);
+      if (like) out[t].set(i, { days, th: isEager ? 0 : th });
+    });
+  }
+  ACTS.forEach((_, t) => { if (me.acts.has(t) && me.days.size) out[t].set(0, { days: new Set(me.days), th: me.th }); });
+  return out;
+}
+
+function chat(cond, order) {            // the sign-up sheet in the group chat
+  const sheet = DAYS.map(() => []), where = new Map();
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const i of order) {
+      if (!cond.has(i) || where.has(i)) continue;
+      const c = cond.get(i);
+      let best = -1;
+      for (const d of [...c.days].sort((a, b) => a - b)) if (sheet[d].length >= c.th && (best < 0 || sheet[d].length > sheet[best].length)) best = d;
+      if (best >= 0) { sheet[best].push(i); where.set(i, best); changed = true; }
+    }
+  }
+  return sheet.map((g, d) => ({ d, g })).filter(x => x.g.length >= K);
+}
+
+function greatest(free, cond, d) {      // the largest group on day d whose members are all satisfied
+  const cand = [...free].filter(i => cond.get(i).days.has(d));
+  const ths = cand.map(i => Math.max(cond.get(i).th, K - 1)).sort((a, b) => a - b);
+  for (let size = ths.length; size >= K; size--) {
+    let cnt = 0; for (const x of ths) if (x <= size - 1) cnt++;
+    if (cnt >= size) return cand.filter(i => Math.max(cond.get(i).th, K - 1) <= size - 1);
+  }
+  return [];
+}
+
+function* perms(a) { if (a.length <= 1) { yield a; return; } for (let i = 0; i < a.length; i++) for (const p of perms([...a.slice(0, i), ...a.slice(i + 1)])) yield [a[i], ...p]; }
+const ORDERS = [...perms([0, 1, 2, 3, 4, 5, 6])];
+
+function agora(cond) {                   // best over day orders: each day takes its largest satisfied group
+  let best = { tot: 0, groups: [] };
+  for (const order of ORDERS) {
+    const free = new Set(cond.keys()), groups = []; let tot = 0;
+    for (const d of order) { const g = greatest(free, cond, d); if (g.length) { groups.push({ d, g }); g.forEach(i => free.delete(i)); tot += g.length; } }
+    if (tot > best.tot) best = { tot, groups };
+  }
+  return best.groups;
+}
+
+function render(id, groups, cnt) {
+  const el = document.getElementById(id), rows = [];
+  groups.sort((a, b) => b.g.length - a.g.length).forEach(x => {
+    const you = x.g.includes(0);
+    rows.push(`<div class="g${you ? ' you' : ''}"><span>${ACTS[x.t]} · ${DAYS[x.d]}${you ? ' · you' : ''}</span><span>${x.g.length}</span></div>`);
+  });
+  el.innerHTML = rows.join('') || '<div class="none">No group forms.</div>';
+}
+
+function update() {
+  const n = +document.getElementById('n').value, eager = +document.getElementById('eg').value / 100;
+  me.th = +document.getElementById('th').value;
+  document.getElementById('thv').textContent = me.th;
+  document.getElementById('egv').textContent = Math.round(eager * 100) + '%';
+  document.getElementById('nv').textContent = n; document.getElementById('nn').textContent = n;
+  const nb = neighborhood(n, eager), r = rng(777);
+  const order = [...Array(n + 1).keys()]; for (let i = order.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [order[i], order[j]] = [order[j], order[i]]; }
+  let C = [], A = [];
+  nb.forEach((cond, t) => {
+    chat(cond, order).forEach(x => C.push({ ...x, t }));
+    agora(cond).forEach(x => A.push({ ...x, t }));
+  });
+  const placed = gs => gs.reduce((s, x) => s + x.g.length, 0);
+  document.getElementById('cb').innerHTML = placed(C) + '<small>placed</small>';
+  document.getElementById('cg').innerHTML = C.length + '<small>groups</small>';
+  document.getElementById('ab').innerHTML = placed(A) + '<small>placed</small>';
+  document.getElementById('ag').innerHTML = A.length + '<small>groups</small>';
+  render('cl', C); render('al', A);
+  const mine = gs => gs.filter(x => x.g.includes(0)).map(x => ACTS[x.t] + ' on ' + DAYS[x.d]);
+  const say = (id, m) => document.getElementById(id).innerHTML = m.length ? 'You: <b>' + m.join(', ') + '</b>' : 'You: no group.';
+  say('cy', mine(C)); say('ay', mine(A));
+}
+
+function chips(id, names, set) {
+  const el = document.getElementById(id);
+  names.forEach((nm, j) => {
+    const b = document.createElement('button'); b.className = 'chip' + (set.has(j) ? ' on' : ''); b.textContent = nm;
+    b.onclick = () => { set.has(j) ? set.delete(j) : set.add(j); b.classList.toggle('on'); update(); };
+    el.appendChild(b);
+  });
+}
+chips('acts', ACTS, me.acts); chips('days', DAYS, me.days);
+['th', 'eg', 'n'].forEach(id => document.getElementById(id).addEventListener('input', update));
+update();
+</script>
+</body>
+</html>
